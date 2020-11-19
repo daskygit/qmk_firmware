@@ -1,0 +1,19 @@
+# MCU name
+MCU = at90usb162
+F_CPU = 8000000
+# Bootloader selection
+BOOTLOADER = atmel-dfu
+BOOTLOADER_SIZE = 4096
+# Features
+EXTRAKEY_ENABLE = yes
+BOOTMAGIC_ENABLE = lite
+VIA_ENABLE = no
+TAP_DANCE_ENABLE = yes
+BACKLIGHT_ENABLE = no
+BACKLIGHT_DRIVER = pwm
+DEBOUNCE_TYPE = sym_eager_pk
+# Space saving
+LTO_ENABLE = yes
+GRAVE_ESC_ENABLE = no
+MAGIC_ENABLE = no
+SPACE_CADET_ENABLE = no
