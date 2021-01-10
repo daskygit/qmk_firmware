@@ -231,6 +231,7 @@ int main(void) {
             }
             /* Woken up */
             // variables has been already cleared by the wakeup hook
+            suspend_wakeup_init();
             send_keyboard_report();
 #    ifdef MOUSEKEY_ENABLE
             mousekey_send();
