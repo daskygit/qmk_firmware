@@ -33,3 +33,6 @@ ENCODER_ENABLE = yes
 DIP_SWITCH_ENABLE = yes
 
 LAYOUTS = ortho_5x12
+
+CUSTOM_MATRIX = yes
+SRC = matrix.c
