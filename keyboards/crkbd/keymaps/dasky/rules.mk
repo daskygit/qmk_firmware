@@ -10,10 +10,16 @@ RAW_ENABLE = yes
 LTO_ENABLE = yes
 BOOTLOADER = nanoboot 		#hid bootloader not supported by qmk
 CONSOLE_ENABLE = no
+CUSTOM_MATRIX = yes
 
 DEBOUNCE_TYPE = asym_eager_defer_pk
 
 REGISTER_MULTIPLE_KEYEVENTS_ENABLE = yes
+
+
+ifeq ($(strip $(CUSTOM_MATRIX)), yes)
+   SRC += matrix.c matrix_common.c
+endif
 
 ifeq ($(strip $(TAP_DANCE_ENABLE)), yes)
    SRC += tapdances.c
