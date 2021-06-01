@@ -23,7 +23,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         matrix_output_select_delay();
 
         for (size_t row_idx = 0; row_idx < MATRIX_ROWS; row_idx++) {
-            raw_matrix[row_idx] |= readPin(row_pins[row_idx]) ? 0 : (MATRIX_ROW_SHIFTER << col_idx);
+            raw_matrix[row_idx] |= readPin(row_pins[row_idx]) ? (MATRIX_ROW_SHIFTER << col_idx) : 0;
         }
 
         ATOMIC_BLOCK_FORCEON { writePinLow(col_pins[col_idx]); }
