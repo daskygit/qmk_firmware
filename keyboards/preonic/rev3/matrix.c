@@ -16,7 +16,7 @@ void matrix_init_custom(void) {
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
-    matrix_row_t raw_matrix[MATRIX_ROWS];
+    matrix_row_t raw_matrix[MATRIX_ROWS] = {0};
 
     for (size_t col_idx = 0; col_idx < MATRIX_COLS; col_idx++) {
         ATOMIC_BLOCK_FORCEON { writePinHigh(col_pins[col_idx]); }
