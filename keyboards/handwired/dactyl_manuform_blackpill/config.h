@@ -39,7 +39,7 @@
 
 /* Split Keyboard specific options */
 #define SOFT_SERIAL_PIN B6
-#define SERIAL_USART_SPEED 2800000
+#define SERIAL_USART_SPEED 2000000
 
 #define WS2812_PWM_DRIVER PWMD3
 #define WS2812_PWM_CHANNEL 4
