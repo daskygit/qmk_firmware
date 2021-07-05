@@ -504,12 +504,31 @@ with via enabled. The VIA application will not work as expected.
 */
 void raw_hid_receive_kb(uint8_t* data, uint8_t length) {
 #        else
+
+#define RAW_HUE data[2]
+#define RAW_SAT data[3]
+#define RAW_VAL data[4]
+#define RAW_DORGB data[5]
+#define RAW_CPU_TEMP data[6]
+#define RAW_CPU_LOAD data[9]
+#define RAW_GPU_TEMP data[7]
+#define RAW_GPU_LOAD data[10]
+
 void raw_hid_receive(uint8_t* data, uint8_t length) {
 #        endif
 #        ifdef RGB_MATRIX_ENABLE
-    if (data[5] == 1) {
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_HUE_WAVE);
-        rgb_matrix_sethsv_noeeprom(data[2], data[3], data[4]);
+    if (RAW_DORGB == 1) {
+        static uint16_t old_hue = 0;
+        static bool changed_mode = false;
+        if (!changed_mode) { //only change mode on first update
+            changed_mode = true;
+            rgb_matrix_mode_noeeprom(RGB_MATRIX_HUE_WAVE);
+        }
+        if (old_hue != RAW_HUE || old_hue == 0) {
+            old_hue = RAW_HUE;
+            uint8_t val = rgb_matrix_get_val();
+            rgb_matrix_sethsv_noeeprom(RAW_HUE, RAW_SAT, val);
+        }
     }
 #        endif
     user_state.cpu_temp = data[6];
