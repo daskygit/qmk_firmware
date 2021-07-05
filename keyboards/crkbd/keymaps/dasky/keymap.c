@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include QMK_KEYBOARD_H
 #include "keymap.h"
 #include "tapdances.h"
@@ -88,7 +89,6 @@ void user_state_sync(bool force) {
         if (needs_sync) {
             needs_sync = !transaction_rpc_send(USER_STATE_SYNC, sizeof(user_runtime_config), &user_state);
         }
-
     }
 }
 
@@ -152,7 +152,7 @@ RGB rgb_to_hsv_hook_func(HSV hsv) {
     switch (user_state.pd_setting) {
         default:
         case USBPD_500MA:
-            scale = 0.40f; //370ma white
+            scale = 0.40f;  // 370ma white
             break;
         case USBPD_1500MA:
             scale = 0.60f;
@@ -206,7 +206,7 @@ void keyboard_post_init_user(void) {
     }
 
     usbpd_update();
-    user_state_sync(true); //force initial update
+    user_state_sync(true);  // force initial update
 }
 
 void suspend_power_down_user(void) {
@@ -505,27 +505,27 @@ with via enabled. The VIA application will not work as expected.
 void raw_hid_receive_kb(uint8_t* data, uint8_t length) {
 #        else
 
-#define RAW_HUE data[2]
-#define RAW_SAT data[3]
-#define RAW_VAL data[4]
-#define RAW_DORGB data[5]
-#define RAW_CPU_TEMP data[6]
-#define RAW_CPU_LOAD data[9]
-#define RAW_GPU_TEMP data[7]
-#define RAW_GPU_LOAD data[10]
+#            define RAW_HUE data[2]
+#            define RAW_SAT data[3]
+#            define RAW_VAL data[4]
+#            define RAW_DORGB data[5]
+#            define RAW_CPU_TEMP data[6]
+#            define RAW_CPU_LOAD data[9]
+#            define RAW_GPU_TEMP data[7]
+#            define RAW_GPU_LOAD data[10]
 
 void raw_hid_receive(uint8_t* data, uint8_t length) {
 #        endif
 #        ifdef RGB_MATRIX_ENABLE
     if (RAW_DORGB == 1) {
-        static uint16_t old_hue = 0;
-        static bool changed_mode = false;
-        if (!changed_mode) { //only change mode on first update
+        static uint16_t old_hue      = 0;
+        static bool     changed_mode = false;
+        if (!changed_mode) {  // only change mode on first update
             changed_mode = true;
             rgb_matrix_mode_noeeprom(RGB_MATRIX_HUE_WAVE);
         }
         if (old_hue != RAW_HUE || old_hue == 0) {
-            old_hue = RAW_HUE;
+            old_hue     = RAW_HUE;
             uint8_t val = rgb_matrix_get_val();
             rgb_matrix_sethsv_noeeprom(RAW_HUE, RAW_SAT, val);
         }
@@ -576,33 +576,31 @@ void matrix_init_pins(void) {
 }
 
 void matrix_read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {
+    writePinLow(row_pins[current_row]);
 
-        writePinLow(row_pins[current_row]);
+    // matrix_output_select_delay();
+    while (readPin(row_pins[current_row]) != 0)
+        ;
 
-        // matrix_output_select_delay();
-        while (readPin(row_pins[current_row]) != 0)
+    uint16_t portb = palReadPort(GPIOB);
+    uint16_t porta = palReadPort(GPIOA);
+    writePinHigh(row_pins[current_row]);
+    matrix_row_t cols;
+
+    cols = ~(((portb & 0x7800) >> 9) | ((portb & 0x8) >> 2) | ((porta & 0x40) >> 6));
+
+    uint32_t temp = cols;
+    __asm__("rbit %0, %1" : "=r"(temp) : "r"(temp));
+    current_matrix[current_row] = temp >> 26;
+
+    // /* Wait until col pins are high again. */
+    // size_t counter = 0xFF;
+    // while (((palReadGroup(GPIOB, 0x7808, 0) != 0x7808) || (palReadGroup(GPIOA, 0x40, 0) != 0x40)) && counter != 0) {
+    //     counter--;
+    // }
+
+    for (size_t i = 0; i < MATRIX_COLS; i++) {
+        while (readPin(col_pins[i]) != 1)
             ;
-
-        uint16_t portb = palReadPort(GPIOB);
-        uint16_t porta = palReadPort(GPIOA);
-        writePinHigh(row_pins[current_row]);
-        matrix_row_t cols;
-
-        cols = ~(((portb & 0x7800) >> 9) | ((portb & 0x8) >> 2) | ((porta & 0x40) >> 6));
-
-        uint32_t temp = cols;
-        __asm__("rbit %0, %1" : "=r"(temp) : "r"(temp));
-        current_matrix[current_row] = temp >> 26;
-
-        // /* Wait until col pins are high again. */
-        // size_t counter = 0xFF;
-        // while (((palReadGroup(GPIOB, 0x7808, 0) != 0x7808) || (palReadGroup(GPIOA, 0x40, 0) != 0x40)) && counter != 0) {
-        //     counter--;
-        // }
-
-        for (size_t i = 0; i < MATRIX_COLS; i++) {
-            while (readPin(col_pins[i]) != 1)
-                ;
-        }
-
+    }
 }
