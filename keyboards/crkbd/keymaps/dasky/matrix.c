@@ -131,12 +131,14 @@ uint8_t matrix_scan(void) {
     matrix_row_t current_matrix[ROWS_PER_HAND];
 
     for (size_t row_idx = 0; row_idx < ROWS_PER_HAND; row_idx++) {
-        ATOMIC_BLOCK_FORCEON { writePinLow(row_pins[row_idx]); }
-        matrix_output_select_delay();
+        writePinLow(row_pins[row_idx]);
+        // matrix_output_select_delay();
+        while (readPin(row_pins[row_idx]) != 0)
+            ;
 
         uint16_t portb = palReadPort(GPIOB);
         uint16_t porta = palReadPort(GPIOA);
-
+        writePinHigh(row_pins[row_idx]);
         matrix_row_t cols;
 
         cols = ~(((portb & 0x7800) >> 9) | ((portb & 0x8) >> 2) | ((porta & 0x40) >> 6));
@@ -145,8 +147,18 @@ uint8_t matrix_scan(void) {
         __asm__("rbit %0, %1" : "=r"(temp) : "r"(temp));
         current_matrix[row_idx] = temp >> 26;
 
-        ATOMIC_BLOCK_FORCEON { writePinHigh(row_pins[row_idx]); }
-        matrix_output_unselect_delay();
+        // /* Wait until col pins are high again. */
+        // size_t counter = 0xFF;
+        // while (((palReadGroup(GPIOB, 0x7808, 0) != 0x7808) || (palReadGroup(GPIOA, 0x40, 0) != 0x40)) && counter != 0) {
+        //     counter--;
+        // }
+
+        for (size_t i = 0; i < MATRIX_COLS; i++) {
+            while (readPin(col_pins[i]) != 1)
+                ;
+        }
+
+        // matrix_output_unselect_delay();
     }
 
     if (memcmp(raw_matrix, current_matrix, sizeof(current_matrix)) != 0) {
