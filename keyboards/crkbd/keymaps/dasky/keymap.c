@@ -19,9 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keymap.h"
 #include "tapdances.h"
 #include "transactions.h"
-#include <string.h>
 #include "rgbmatrix_indicators.h"
-#include <hal.h>
+#include <string.h>
 
 static uint8_t start_key_led, end_key_led, start_under_led, end_under_led;
 
@@ -174,7 +173,7 @@ void rpc_user_sync_callback(uint8_t initiator2target_buffer_size, const void* in
 
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
-    debug_enable = true;
+    // debug_enable = true;
     // debug_matrix = true;
     // debug_keyboard=true;
     // debug_mouse=true;
@@ -241,42 +240,32 @@ void rgb_check_blinking(uint8_t led_start, uint8_t led_end) {
     }
 }
 
-void rgb_show_layer(uint8_t led_start, uint8_t led_end) {
-    const uint8_t* selected_theme = NULL;
+void rgb_show_layer(void) {
+    uint8_t indicator_layer = 0;
     switch (get_highest_layer(layer_state)) {
-        case _LOWER:
-            selected_theme = is_keyboard_left() ? lower_left : lower_right;
-            break;
-        case _RAISE:
-            selected_theme = is_keyboard_left() ? raise_left : raise_right;
-            break;
-        case _GAMING:
-            selected_theme = is_keyboard_left() ? gaming_left : gaming_right;
-            break;
-
+        case _QWERTY:
+        case _COLEMAK:
+            return;
         default:
+            indicator_layer = get_highest_layer(layer_state);
             break;
     }
-
-    if (selected_theme) {
-        for (uint8_t i = led_start; i <= led_end; i++) {
-            uint8_t hue = pgm_read_byte(selected_theme);
-            selected_theme++;
-            if (hue == 255) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+            uint8_t hue = pgm_read_byte(&hue_indicators[indicator_layer][row][col]);
+            if (hue == INDIGN) {
                 continue;
             };
-            uint8_t val = (hue != 0) ? rgb_matrix_get_val() : 0;
+            uint8_t val = (hue != INDOFF) ? rgb_matrix_get_val() : 0;
             HSV     hsv = {.h = hue, .s = 255, .v = val};
             RGB     rgb = rgb_to_hsv_hook_func(hsv);
-            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+            rgb_matrix_set_color(g_led_config.matrix_co[row][col], rgb.r, rgb.g, rgb.b);
         }
     }
 }
 
 void rgb_matrix_indicators_user(void) {
-    // if (!user_state.blinking) {
-    rgb_show_layer(start_key_led, end_key_led);
-    //}
+    rgb_show_layer();
     rgb_check_blinking(start_key_led, end_key_led);
 }
 
