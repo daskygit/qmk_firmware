@@ -560,3 +560,48 @@ bool is_keyboard_master(void) {
     return is_master;
 }
 #endif
+
+static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
+static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+
+void matrix_init_pins(void) {
+    for (size_t i = 0; i < MATRIX_COLS; i++) {
+        setPinInputHigh(col_pins[i]);
+    }
+    for (size_t i = 0; i < MATRIX_ROWS; i++) {
+        setPinOutput(row_pins[i]);
+        writePinHigh(row_pins[i]);
+    }
+}
+
+void matrix_read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {
+
+        writePinLow(row_pins[current_row]);
+
+        // matrix_output_select_delay();
+        while (readPin(row_pins[current_row]) != 0)
+            ;
+
+        uint16_t portb = palReadPort(GPIOB);
+        uint16_t porta = palReadPort(GPIOA);
+        writePinHigh(row_pins[current_row]);
+        matrix_row_t cols;
+
+        cols = ~(((portb & 0x7800) >> 9) | ((portb & 0x8) >> 2) | ((porta & 0x40) >> 6));
+
+        uint32_t temp = cols;
+        __asm__("rbit %0, %1" : "=r"(temp) : "r"(temp));
+        current_matrix[current_row] = temp >> 26;
+
+        // /* Wait until col pins are high again. */
+        // size_t counter = 0xFF;
+        // while (((palReadGroup(GPIOB, 0x7808, 0) != 0x7808) || (palReadGroup(GPIOA, 0x40, 0) != 0x40)) && counter != 0) {
+        //     counter--;
+        // }
+
+        for (size_t i = 0; i < MATRIX_COLS; i++) {
+            while (readPin(col_pins[i]) != 1)
+                ;
+        }
+
+}
