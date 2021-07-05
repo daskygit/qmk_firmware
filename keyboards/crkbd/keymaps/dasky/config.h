@@ -56,7 +56,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef RGB_MATRIX_ENABLE
 #    define RGB_MATRIX_KEYPRESSES
 #    define RGB_MATRIX_MAXIMUM_BRIGHTNESS 255
-//#    define RGB_MATRIX_LED_FLUSH_LIMIT 20
 #endif
 
 #undef SOFT_SERIAL_PIN
@@ -68,9 +67,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #undef RGB_DI_PIN
 #define RGB_DI_PIN A2
 
-
-//#define MATRIX_ROW_PINS { D4, C6, D7, E6 }
-//#define MATRIX_COL_PINS { F4, F5, F6, F7, B1, B3 }
 #undef MATRIX_ROW_PINS
 #define MATRIX_ROW_PINS { C15, F1, A1, F0 }
 #undef MATRIX_COL_PINS
@@ -80,7 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STM32_BOOTLOADER_DUAL_BANK TRUE
 #define STM32_BOOTLOADER_DUAL_BANK_GPIO B0
 
-#define VBUS_DETECT_PIN C13
+#define USB_VBUS_PIN C13
 
 #define SPLIT_HAND_PIN B9
 

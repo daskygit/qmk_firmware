@@ -543,24 +543,6 @@ void housekeeping_task_user(void) {
     }
 }
 
-#ifdef VBUS_DETECT_PIN
-bool is_keyboard_master(void) {
-    static bool determined = false;
-    static bool is_master;
-    if (!determined) {
-        determined = true;
-        setPinInput(VBUS_DETECT_PIN);
-        wait_ms(50);
-        is_master = readPin(VBUS_DETECT_PIN) ? true : false;
-        if (!is_master) {
-            usbStop(&USBD1);
-        }
-    }
-
-    return is_master;
-}
-#endif
-
 static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
 static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
 
