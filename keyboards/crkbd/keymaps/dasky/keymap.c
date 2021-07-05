@@ -297,9 +297,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
             case KC_1 ... KC_0:
                 if (record->event.pressed) {
                     if (AS_ARRAY == 0) {
-                        AS_ARRAY = record->event.time;
+                        AS_ARRAY = timer_read();
                         if (!user_state.blinking) {
-                            blink_timer = record->event.time;
+                            blink_timer = timer_read();
                         }
                     }
                 } else {
