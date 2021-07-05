@@ -51,9 +51,9 @@ const uint8_t PROGMEM hue_indicators[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_ADJUST] = LAYOUT_split_3x6_3(
-    1     , 21    , INDOFF, INDOFF, INDOFF, 201   ,                         INDOFF, INDOFF, INDOFF, INDOFF, INDOFF, INDOFF,
-    INDOFF, 1     , 201   , 148   , 106   , 169   ,                         169   , INDOFF, INDOFF, INDOFF, INDOFF, INDIGN,
-    INDIGN, 1     , 201   , 148   , 106   , 1     ,                         1     , INDOFF, INDOFF, INDOFF, INDOFF, INDIGN,
+    1     , 21    , INDOFF, INDOFF, INDOFF, 201   ,                         INDOFF, INDOFF, INDIGN, INDIGN, INDIGN, INDIGN,
+    INDOFF, 1     , 201   , 148   , 106   , 169   ,                         169   , INDOFF, INDIGN, INDIGN, INDIGN, INDIGN,
+    INDIGN, 1     , 201   , 148   , 106   , 1     ,                         1     , INDOFF, INDIGN, INDIGN, INDIGN, INDIGN,
                                     INDOFF, INDOFF, INDOFF,         INDOFF, INDOFF, INDOFF
 )
 };
