@@ -326,7 +326,7 @@ void render_pd_allowance(void) {
 void render_matrix_rate(void) {
     char buffer[10];
 
-    oled_write_ln(itoa(get_matrix_scan_rate(), buffer, 10), false);
+    oled_write_ln((char *)itoa(get_matrix_scan_rate(), buffer, 10), false);
     if (get_matrix_scan_rate() < 10000) {
         oled_advance_page(true);
     }
@@ -409,7 +409,7 @@ void render_hostinfo(const char* data, uint8_t value) {
             oled_advance_char();
         }
     }
-    oled_write_ln(itoa(value, buffer, 10), false);
+    oled_write_ln((char *)itoa(value, buffer, 10), false);
 }
 
 void render_hostinfo_bar(uint8_t value) {
@@ -587,6 +587,10 @@ void matrix_read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
     // while (((palReadGroup(GPIOB, 0x7808, 0) != 0x7808) || (palReadGroup(GPIOA, 0x40, 0) != 0x40)) && counter != 0) {
     //     counter--;
     // }
+
+    if (cols == 0) {
+        return;
+    }
 
     for (size_t i = 0; i < MATRIX_COLS; i++) {
         while (readPin(col_pins[i]) != 1)
