@@ -24,7 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID   0x5342
 #define DEVICE_VER   0x0001
 #define MANUFACTURER Stelulu Technology Inc.
-#define PRODUCT      Stinky Footboard (QMK)
+#define PRODUCT Stinky Footboard(QMK)
+
+#define VIAL_KEYBOARD_UID {0x1B, 0xD0, 0xA9, 0x06, 0x22, 0x01, 0x00, 0x31}
 
 #define USB_POLLING_INTERVAL_MS 1
 

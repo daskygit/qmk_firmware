@@ -1,0 +1,37 @@
+{
+    "name": "Stinky Footboard (QMK)",
+    "vendorId": "0x444B",
+    "productId": "0x5342",
+    "lighting": "none",
+    "matrix": {
+        "rows": 1,
+        "cols": 4
+    },
+    "layouts": {
+        "keymap":[
+            [
+              {
+                "x": 1
+              },
+              "0,0"
+            ],
+            [
+              {
+                "y": -0.5
+              },
+              "0,1",
+              {
+                "x": 1
+              },
+              "0,2"
+            ],
+            [
+              {
+                "y": -0.5,
+                "x": 1
+              },
+              "0,3"
+            ]
+          ]
+    }
+}
