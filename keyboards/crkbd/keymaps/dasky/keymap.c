@@ -326,7 +326,7 @@ void render_pd_allowance(void) {
 void render_matrix_rate(void) {
     char buffer[10];
 
-    oled_write_ln((char *)itoa(get_matrix_scan_rate(), buffer, 10), false);
+    oled_write_ln((char*)itoa(get_matrix_scan_rate(), buffer, 10), false);
     if (get_matrix_scan_rate() < 10000) {
         oled_advance_page(true);
     }
@@ -409,7 +409,7 @@ void render_hostinfo(const char* data, uint8_t value) {
             oled_advance_char();
         }
     }
-    oled_write_ln((char *)itoa(value, buffer, 10), false);
+    oled_write_ln((char*)itoa(value, buffer, 10), false);
 }
 
 void render_hostinfo_bar(uint8_t value) {
@@ -528,6 +528,9 @@ void raw_hid_receive(uint8_t* data, uint8_t length) {
 #    endif
 #endif
 
+static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
+static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+
 void housekeeping_task_user(void) {
     if (is_keyboard_master()) {
         static uint32_t last_read  = 0;
@@ -549,16 +552,52 @@ void housekeeping_task_user(void) {
     if (!oled_started) {
         oled_started = oled_init(OLED_ROTATION_270);
     }
-}
 
-static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
-static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+    static uint8_t last_val = 0;
+    static uint8_t low_val = 0;
+    // Go into low-scan interrupt-based mode if we haven't had any matrix activity in the last 5 seconds
+    if (last_input_activity_elapsed() > 15000) {
+
+        if (rgb_matrix_is_enabled() && low_val == 0) {
+            last_val = rgb_matrix_get_val();
+            rgb_matrix_config.hsv.v = low_val = (last_val * 0.25);
+        }
+        // ROW2COL
+        const pin_t row_pins[] = MATRIX_ROW_PINS;
+        const pin_t col_pins[] = MATRIX_COL_PINS;
+
+        // Set up row/col pins and attach callback
+        for (size_t i = 0; i < MATRIX_ROWS / 2; i++) {
+            writePinLow(row_pins[i]);
+        }
+
+        for (size_t i = 0; i < MATRIX_COLS; i++) {
+            palEnableLineEvent(col_pins[i], PAL_EVENT_MODE_BOTH_EDGES);
+        }
+
+        // Wait for an interrupt
+        __WFI();
+
+        // Now that the interrupt has woken us up, reset all the row/col pins back to defaults
+        for (size_t i = 0; i < MATRIX_ROWS / 2; i++) {
+            writePinHigh(row_pins[i]);
+        }
+        for (size_t i = 0; i < MATRIX_COLS; i++) {
+            palDisableLineEvent(col_pins[i]);
+        }
+    } else if (rgb_matrix_is_enabled()) {
+        if (rgb_matrix_get_val() == low_val) {
+            rgb_matrix_config.hsv.v = last_val;
+            low_val = 0;
+        }
+    }
+}
 
 void matrix_init_pins(void) {
     for (size_t i = 0; i < MATRIX_COLS; i++) {
         setPinInputHigh(col_pins[i]);
     }
-    for (size_t i = 0; i < MATRIX_ROWS; i++) {
+    for (size_t i = 0; i < MATRIX_ROWS / 2; i++) {
         setPinOutput(row_pins[i]);
         writePinHigh(row_pins[i]);
     }
