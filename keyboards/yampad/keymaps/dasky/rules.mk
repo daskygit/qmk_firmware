@@ -1,0 +1,5 @@
+BOOTLOADER = unknown
+BOOTLOADER_SIZE = 512
+SRC += nanoboot.c
+CONSOLE_ENABLE = yes
+RGBLIGHT_ENABLE = yes
