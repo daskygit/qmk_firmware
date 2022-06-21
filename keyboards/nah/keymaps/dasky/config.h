@@ -1,0 +1,59 @@
+// Copyright 2021 Dasky (@daskygit)
+// SPDX-License-Identifier: GPL-2.0-or-later
+#pragma once
+
+#define STM32_BOOTLOADER_DUAL_BANK TRUE
+#define STM32_BOOTLOADER_DUAL_BANK_GPIO C14
+
+#define USB_VBUS_PIN B5
+
+#undef MATRIX_ROW_PINS
+#define MATRIX_ROW_PINS \
+    { B14, B13, B12, B11, B3, A6, A7, B2, A4 }
+
+#undef MATRIX_COL_PINS
+#define MATRIX_COL_PINS \
+    { F0, F1 }
+
+#define MATRIX_HAS_GHOST
+
+#undef SPLIT_HAND_PIN
+#define SPLIT_HAND_PIN C15
+
+#undef RGB_DI_PIN
+#define RGB_DI_PIN     A1
+
+#undef SOFT_SERIAL_PIN
+#define SERIAL_USART_DRIVER SD2
+#define SERIAL_USART_SPEED 2000000
+#define SERIAL_USART_TIMEOUT 10
+
+#define SERIAL_USART_FULL_DUPLEX   // Enable full duplex operation mode.
+#define SERIAL_USART_TX_PIN A2     // USART TX pin
+#define SERIAL_USART_RX_PIN A3     // USART RX pin
+#define SERIAL_USART_PIN_SWAP    // Swap TX and RX pins if keyboard is master halve.
+
+#define WS2812_PWM_DRIVER PWMD5
+#define WS2812_PWM_CHANNEL 2
+#define WS2812_PWM_PAL_MODE 2
+#define WS2812_DMA_STREAM STM32_DMA1_STREAM3
+#define WS2812_DMA_CHANNEL 1
+#define WS2812_DMAMUX_ID STM32_DMAMUX1_TIM5_UP
+
+#define I2C1_TIMINGR_PRESC 0U
+#define I2C1_TIMINGR_SCLDEL 15U
+#define I2C1_TIMINGR_SDADEL 0U
+#define I2C1_TIMINGR_SCLH 123U
+#define I2C1_TIMINGR_SCLL 255U
+
+#define I2C_DRIVER I2CD1
+#define I2C1_SCL_PIN A15
+#define I2C1_SCL_PAL_MODE 4
+#define I2C1_SDA_PIN B7
+#define I2C1_SDA_PAL_MODE 4
+
+#define EXTERNAL_EEPROM_BYTE_COUNT 2048
+#define EXTERNAL_EEPROM_PAGE_SIZE 16
+#define EXTERNAL_EEPROM_ADDRESS_SIZE 1
+
+#define MOUSE_EXT_REPORT

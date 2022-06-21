@@ -1,0 +1,24 @@
+CB(lsbrc  , KC_LBRC, KC_R, KC_T)
+CB(rsbrc  , KC_RBRC, KC_Y, KC_U)
+CB(lbrc   , S(KC_9), KC_F, KC_G)
+CB(rbrc   , S(KC_0), KC_H, KC_J)
+CB(lcbrc  , S(KC_LBRC), KC_V, KC_B)
+CB(rcbrc  , S(KC_RBRC), KC_N, KC_M)
+
+CB(esc, KC_ESC, KC_Q, KC_W)
+CB(del, KC_DEL, KC_O, KC_P)
+
+CB(grv, KC_GRV, KC_E, KC_W)
+CB(quot, KC_QUOT, MT_L, MT_K)
+CB(nuhs, KC_NUHS, KC_COMM, KC_M)
+CB(nubs, KC_NUBS, MT_D, MT_S)
+
+//CB(under, S(KC_MINS), KC_C, KC_X)
+CB(dash, KC_MINS, KC_X, KC_C)
+CB(equals, KC_EQL, KC_C, KC_V)
+CB(question, S(KC_SLSH), MT_SLSH, KC_DOT)
+
+CB(save, C(KC_S), MT_A, MT_S)
+
+CB(lraise , RAISEL , LOWERL, KC_BSPC)
+CB(rraise , ALTNUHS, KC_SPC, LOWERR)
