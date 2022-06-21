@@ -1,0 +1,16 @@
+MCU_LDSCRIPT = STM32F401xE_tinyuf2
+
+KEYBOARD_SHARED_EP = yes
+
+QUANTUM_PAINTER_ENABLE = yes
+QUANTUM_PAINTER_DRIVERS = gc9a01_spi
+
+SRC += test.qgf.c
+
+WS2812_DRIVER = pwm
+
+LTO_ENABLE = yes
+OPT = 2
+
+CUSTOM_MATRIX = lite
+SRC += matrix.c
