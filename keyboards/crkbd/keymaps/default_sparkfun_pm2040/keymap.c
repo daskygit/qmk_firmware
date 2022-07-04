@@ -18,26 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include <stdio.h>
-#include "lib/lib8tion/lib8tion.h"
-#include "transactions.h"
-
-typedef struct user_config {
-    uint8_t rgb_scale;
-} user_config;
-
-user_config user_state;
-
-enum custom_keycodes {
-    RGB_SCALE_UP = SAFE_RANGE,
-    RGB_SCALE_DOWN,
-};
-
-#define RGB_SCALE_STEP 16
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       RGB_SCALE_UP,    RGB_SCALE_DOWN,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
+       KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LCTL,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -183,68 +168,9 @@ bool oled_task_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        set_keylog(keycode, record);
-        switch (keycode) {
-            case RGB_SCALE_UP:
-                user_state.rgb_scale = qadd8(user_state.rgb_scale, RGB_SCALE_STEP);
-                return false;
-            case RGB_SCALE_DOWN:
-                user_state.rgb_scale = qsub8(user_state.rgb_scale, RGB_SCALE_STEP);
-                return false;
-        }
-    }
-    return true;
+  if (record->event.pressed) {
+    set_keylog(keycode, record);
+  }
+  return true;
 }
-
 #endif // OLED_ENABLE
-
-void user_sync(void) {
-    static user_config last_user_state;
-    static bool        needs_sync = false;
-
-    if (memcmp(&user_state, &last_user_state, sizeof(user_config))) {
-        needs_sync = true;
-        memcpy(&last_user_state, &user_state, sizeof(user_config));
-        rgblight_set();
-    }
-
-    if (needs_sync) {
-        needs_sync = !transaction_rpc_send(USER_SYNC_ID, sizeof(user_config), &user_state);
-    }
-}
-
-void user_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (initiator2target_buffer_size == sizeof(user_state)) {
-        memcpy(&user_state, initiator2target_buffer, sizeof(user_config));
-        rgblight_set();
-    }
-}
-
-void keyboard_post_init_user(void) {
-    transaction_register_rpc(USER_SYNC_ID, user_sync_handler);
-
-    user_state.rgb_scale = 128;
-
-    if (is_keyboard_master()) {
-        user_sync();
-    }
-}
-
-void rgblight_call_driver(LED_TYPE* start_led, uint8_t num_leds) {
-    for (uint8_t i = 0; i < 6; i++) {
-            // start_led[i].r   = scale8(start_led[i].r, user_state.rgb_scale);
-            // start_led[i].g   = scale8(start_led[i].g, user_state.rgb_scale);
-            // start_led[i].b   = scale8(start_led[i].b, user_state.rgb_scale);
-            start_led[i].r   = user_state.rgb_scale;
-            start_led[i].g   = user_state.rgb_scale;
-            start_led[i].b   = user_state.rgb_scale;
-    }
-    ws2812_setleds(start_led, num_leds);
-}
-
-void housekeeping_task_user(void) {
-    if (is_keyboard_master()) {
-        user_sync();
-    }
-}

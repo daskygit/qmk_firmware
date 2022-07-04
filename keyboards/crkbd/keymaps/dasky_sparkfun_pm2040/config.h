@@ -1,16 +1,13 @@
-// Copyright 2021 Dasky (@daskygit)
+// Copyright 2022 Dasky (@daskygit)
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 
 #define EE_HANDS
-#define BOOTMAGIC_LITE_ROW_RIGHT 4
-#define BOOTMAGIC_LITE_COLUMN_RIGHT 0
 
 #undef MATRIX_ROW_PINS
 #define MATRIX_ROW_PINS \
     { GP4, GP5, GP6, GP7 }
 
-// wiring of each half
 #undef MATRIX_COL_PINS
 #define MATRIX_COL_PINS \
     { GP29, GP28, GP27, GP26, GP22, GP20 }
@@ -23,17 +20,12 @@
 #define CRC8_USE_TABLE
 #define CRC8_OPTIMIZE_SPEED
 
-/* ws2812 RGB LED */
 #undef RGB_DI_PIN
 #define RGB_DI_PIN GP0
 
-#define I2C1_SDA_PIN GP2
-#define I2C1_SCL_PIN GP3
-#define I2C_DRIVER I2CD2
-
 #define OVERRIDE_DEBOUNCE 2
 
-#define USB_VBUS_PIN 23U
+#define USB_VBUS_PIN GP23
 
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP25
