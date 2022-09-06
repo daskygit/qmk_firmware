@@ -12,3 +12,6 @@ SERIAL_DRIVER = vendor
 
 ALLOW_WARNINGS = yes
 PICO_INTRINSICS_ENABLED = no # ATM Unsupported by ChibiOS!
+
+POINTING_DEVICE_DRIVER = cirque_pinnacle_i2c
+POINTING_DEVICE_ENABLE = yes
