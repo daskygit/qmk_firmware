@@ -8,8 +8,8 @@
 #define VENDOR_ID       0xFEEE
 #define PRODUCT_ID      0xEEED
 #define DEVICE_VER      0x0001
-#define MANUFACTURER    Dasky
-#define PRODUCT         Not A Hypergolic
+#define MANUFACTURER    "Dasky"
+#define PRODUCT         "Not A Hypergolic"
 
 /* key matrix size */
 #define MATRIX_ROWS 18
