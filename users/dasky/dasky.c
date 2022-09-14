@@ -128,6 +128,17 @@ void housekeeping_task_throttled(void) {
 #ifdef SPLIT_KEYBOARD
     bool force_update = false;
 #endif
+    if (last_input_activity_elapsed() > 5000) {
+#ifdef OLED_ENABLE
+        oled_off();
+#endif
+    } else {
+#ifdef OLED_ENABLE
+        if (!is_oled_on()) {
+            oled_on();
+        }
+#endif
+    }
     if (is_keyboard_master()) {
 #ifdef USBPD_ENABLE
         force_update = usbpd_allowance() ? true : force_update;
@@ -156,15 +167,7 @@ void housekeeping_task_throttled(void) {
                 rgblight_sethsv_noeeprom(rgblight_config.hue, rgblight_config.sat, low_val);
             }
 #    endif
-#    ifdef OLED_ENABLE
-            oled_off();
-#    endif
         } else {
-#    ifdef OLED_ENABLE
-            if (!is_oled_on()) {
-                oled_on();
-            }
-#    endif
 #    ifdef RGB_MATRIX_ENABLE
             if (rgb_matrix_is_enabled()) {
                 if (rgb_matrix_get_val() == low_val) {
