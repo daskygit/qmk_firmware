@@ -2,7 +2,8 @@
     "manufacturer": "Dasky",
     "keyboard_name": "Echo",
     "maintainer": "daskygit",
-    "bootloader": "stm32-dfu",
+    "bootloader": "tinyuf2",
+    "development_board": "blackpill_f401",
     "diode_direction": "ROW2COL",
     "features": {
         "bootmagic": true,
