@@ -3,6 +3,9 @@
 
 #pragma once
 
+#define MATRIX_COLS 6
+#define MATRIX_ROWS 10
+
 #define SPI_DRIVER SPID1
 #define SPI_SCK_PIN A5
 #define SPI_SCK_PAL_MODE 5
