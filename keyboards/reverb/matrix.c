@@ -8,24 +8,17 @@
 const pin_t matrix_read_pins[] = {B3, B4, B5, B6, B7, B8};
 const pin_t matrix_out_pins[]  = {B12, B13, B14, B15, A8};
 
-#define PORTB_BITMASK (1 << 3 | 1 << 4 | 1 << 5 | 1 << 6 | 1 << 7 | 1 << 8)
+#define PORTB_READ_BITMASK (1 << 3 | 1 << 4 | 1 << 5 | 1 << 6 | 1 << 7 | 1 << 8)
+#define PORTB_OUT_BITMASK (1 << 12 | 1 << 13 | 1 << 14 | 1 << 15)
 
 void matrix_all_pins_high(void) {
-    for (uint8_t i = 0; i < 5; i++) {
-        setPinInputHigh(matrix_out_pins[i]);
-    }
-    for (uint8_t i = 0; i < 6; i++) {
-        setPinInputHigh(matrix_read_pins[i]);
-    }
+    setPinInputHigh(A8);
+    palSetGroupMode(GPIOB, (PORTB_OUT_BITMASK | PORTB_READ_BITMASK), 0, PAL_MODE_INPUT_PULLUP);
 }
 
 void matrix_all_pins_low(void) {
-    for (uint8_t i = 0; i < 5; i++) {
-        setPinInputLow(matrix_out_pins[i]);
-    }
-    for (uint8_t i = 0; i < 6; i++) {
-        setPinInputLow(matrix_read_pins[i]);
-    }
+    setPinInputLow(A8);
+    palSetGroupMode(GPIOB, (PORTB_OUT_BITMASK | PORTB_READ_BITMASK), 0, PAL_MODE_INPUT_PULLDOWN);
 }
 
 void matrix_init_custom(void) {
@@ -41,7 +34,7 @@ void matrix_scan_high(matrix_row_t current_matrix[], matrix_row_t temp_matrix[])
             ;
         uint16_t port_b = palReadPort(GPIOB);
         setPinInputHigh(output_pin);
-        temp_matrix[current_row] = ~((port_b & PORTB_BITMASK) >> 3);
+        temp_matrix[current_row] = ~((port_b & PORTB_READ_BITMASK) >> 3);
     }
 }
 
@@ -54,7 +47,7 @@ void matrix_scan_low(matrix_row_t current_matrix[], matrix_row_t temp_matrix[]) 
             ;
         uint16_t port_b = palReadPort(GPIOB);
         setPinInputLow(output_pin);
-        temp_matrix[current_row + 5] = ((port_b & PORTB_BITMASK) >> 3);
+        temp_matrix[current_row + 5] = ((port_b & PORTB_READ_BITMASK) >> 3);
     }
 }
 
