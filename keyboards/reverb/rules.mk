@@ -6,6 +6,7 @@ SRC += test.qgf.c
 RGB_MATRIX_DRIVER = WS2812
 WS2812_DRIVER = pwm
 
+LTO_ENABLE = yes
 OPT = 2
 
 CUSTOM_MATRIX = lite
