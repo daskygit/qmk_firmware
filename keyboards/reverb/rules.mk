@@ -7,3 +7,6 @@ RGB_MATRIX_DRIVER = WS2812
 WS2812_DRIVER = pwm
 
 OPT = 2
+
+CUSTOM_MATRIX = lite
+SRC += matrix.c
