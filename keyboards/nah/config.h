@@ -5,18 +5,18 @@
 #include "config_common.h"
 
 /* USB Device descriptor parameter */
-#define VENDOR_ID       0xFEEE
-#define PRODUCT_ID      0xEEED
-#define DEVICE_VER      0x0001
-#define MANUFACTURER    "Dasky"
-#define PRODUCT         "Not A Hypergolic"
+#define VENDOR_ID 0xFEEE
+#define PRODUCT_ID 0xEEED
+#define DEVICE_VER 0x0001
+#define MANUFACTURER "Dasky"
+#define PRODUCT "Not A Hypergolic"
 
 /* key matrix size */
 #define MATRIX_ROWS 18
 #define MATRIX_COLS 2
 
 #define MATRIX_ROW_PINS \
-    { F4, F5, F6, F7, B1, B3, B2, B6, B5}
+    { F4, F5, F6, F7, B1, B3, B2, B6, B5 }
 
 #define MATRIX_COL_PINS \
     { E6, C6 }
@@ -33,13 +33,13 @@
 #ifdef RGBLIGHT_ENABLE
 #    define RGBLED_NUM 36
 #    define RGBLED_SPLIT \
-        { 18, 18}
+        { 18, 18 }
 #    define RGBLIGHT_SPLIT
 #endif
 
 #ifdef RGB_MATRIX_ENABLE
-#    define RGBLED_NUM       36
-#    define DRIVER_LED_TOTAL RGBLED_NUM
+#    define RGBLED_NUM 36
+#    define RGB_MATRIX_LED_COUNT RGBLED_NUM
 #    define RGB_MATRIX_SPLIT \
         { 18, 18 }
 #    define SPLIT_TRANSPORT_MIRROR
