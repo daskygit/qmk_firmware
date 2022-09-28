@@ -47,9 +47,11 @@ led_config_t g_led_config = { {
 // clang-format on
 
 #ifdef RGB_MATRIX_ENABLE
-extern LED_TYPE rgb_matrix_ws2812_array[DRIVER_LED_TOTAL];
+extern LED_TYPE rgb_matrix_ws2812_array[RGB_MATRIX_LED_COUNT];
 
-void rgb_matrix_indicators_kb(void) { pimoroni_trackball_set_rgbw(rgb_matrix_ws2812_array[17].r, rgb_matrix_ws2812_array[17].g, rgb_matrix_ws2812_array[17].b, 0); }
+void rgb_matrix_indicators_kb(void) {
+    pimoroni_trackball_set_rgbw(rgb_matrix_ws2812_array[17].r, rgb_matrix_ws2812_array[17].g, rgb_matrix_ws2812_array[17].b, 0);
+}
 #endif
 
 #if defined(RGBLIGHT_ENABLE)

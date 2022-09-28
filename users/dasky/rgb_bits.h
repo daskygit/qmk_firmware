@@ -7,7 +7,7 @@ typedef struct led_to_matrix_pos {
     uint8_t col : 8;
 } led_to_matrix_pos;
 
-led_to_matrix_pos led_position[DRIVER_LED_TOTAL];
+led_to_matrix_pos led_position[RGB_MATRIX_LED_COUNT];
 
 void rgb_matrix_led_index_init(void);
 
