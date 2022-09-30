@@ -64,7 +64,7 @@ void rgb_show_layer(uint8_t led_min, uint8_t led_max) {
 
     for (uint8_t i = led_min; i < led_max; i++) {
         if (rgb_matrix_led_index_has_pos(i)) {
-            uint16_t kc  = pgm_read_word(&keymaps[get_highest_layer(layer_state)][led_position[i].row][led_position[i].col]);
+            uint16_t kc  = keycode_at_keymap_location(get_highest_layer(layer_state), led_position[i].row, led_position[i].col);
             uint8_t  hue = 0;
             uint8_t  val = rgb_matrix_get_val();
             switch (get_highest_layer(layer_state)) {
