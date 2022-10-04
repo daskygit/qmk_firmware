@@ -1,0 +1,17 @@
+// Copyright 2022 Dasky (@daskygit)
+// SPDX-License-Identifier: GPL-2.0-or-later
+#pragma once
+
+#undef SOFT_SERIAL_PIN
+#define SERIAL_USART_SPEED 2000000
+#define SERIAL_USART_TIMEOUT 20
+#define SERIAL_USART_FULL_DUPLEX
+#define SERIAL_USART_TX_PIN D3
+#define SERIAL_USART_RX_PIN D2
+#define SERIAL_USART_PIN_SWAP
+#define SERIAL_DEBUG
+
+#define OVERRIDE_DEBOUNCE 2
+#define OVERRIDE_RGB_MATRIX_BRIGHTNESS 255
+
+#define MOUSE_EXT_REPORT
