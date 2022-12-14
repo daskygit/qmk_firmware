@@ -71,7 +71,7 @@ def show_matrix(kb_info_json, title_caps=True):
         print(render_layout(kb_info_json['layouts'][layout_name]['layout'], cli.config.info.ascii, labels))
 
 
-def show_led_config(kb_info_json, title_caps=True):
+def show_led_matrix_config(kb_info_json, title_caps=True, show_flags=False):
     if 'layout' in kb_info_json.get('rgb_matrix', {}):
         config_type = 'rgb_matrix'
     elif 'layout' in kb_info_json.get('led_matrix', {}):
@@ -88,6 +88,36 @@ def show_led_config(kb_info_json, title_caps=True):
             if 'matrix' in item:
                 if item['matrix'] == key['matrix']:
                     labels.append(str(index))
+                    if show_flags:
+                        if 'flags' in item:
+                            if item['flags'] == 255:
+                                labels[-1] = labels[-1] + 'a'
+                            else:
+                                if item['flags'] & 1:
+                                    labels[-1] = labels[-1] + 'm'
+                                if item['flags'] & 4:
+                                    labels[-1] = labels[-1] + 'k'
+                                if item['flags'] & 8:
+                                    labels[-1] = labels[-1] + 'i'
+
+    # Print the header
+    if title_caps:
+        cli.echo('{fg_blue}LED to Key Matrix Layout for "%s"{fg_reset}:', layout_name)
+    else:
+        cli.echo('{fg_blue}led_to_matrix_%s{fg_reset}:', layout_name)
+
+    print(render_layout(layout['layout'], cli.config.info.ascii, labels))
+
+def show_led_positional_config(kb_info_json, title_caps=True, show_flags=False, split_keys=False):
+    if 'layout' in kb_info_json.get('rgb_matrix', {}):
+        config_type = 'rgb_matrix'
+    elif 'layout' in kb_info_json.get('led_matrix', {}):
+        config_type = 'led_matrix'
+    else:
+        return
+
+    (layout_name, layout), *_ = kb_info_json["layouts"].items()
+    led_config = kb_info_json[config_type]['layout']
 
     # guess at width and height now its optional
     width, height = (0, 0)
@@ -95,25 +125,49 @@ def show_led_config(kb_info_json, title_caps=True):
         width = max(width, int(item["x"]) + 1)
         height = max(height, int(item["y"]) + 1)
 
-    # Handle any non-matrix leds
-    underglow = []
-    underglow_labels = []
+    x_max, y_max = (224, 64)
     for index, item in enumerate(led_config, start=0):
-        if 'matrix' not in item:
-            x = item['x'] / 224 * (width + 2)
-            y = item['y'] / 64 * (height + 2)
-            underglow.append({'x': x, 'y': y, 'w': 0.75, 'h': 0.75})
-            underglow_labels.append(str(index))
+        x_max = max(x_max, int(item['x']))
+        y_max = max(y_max, int(item['y']))
+
+    led_key_layout = []
+    led_key_labels = []
+    led_layout = []
+    led_layout_labels = []
+    for index, item in enumerate(led_config, start=0):
+        x = item['x'] / x_max * (width + 2)
+        y = item['y'] / y_max * (height + 2)
+        temp_layout = {'x': x, 'y': y, 'w': 0.75, 'h': 0.75}
+        temp_label = (str(index))
+        if show_flags:
+            if 'flags' in item:
+                if item['flags'] == 255:
+                    temp_label += 'a'
+                else:
+                    if item['flags'] & 1:
+                        temp_label += 'm'
+                    if item['flags'] & 4:
+                        temp_label += 'k'
+                    if item['flags'] & 8:
+                        temp_label += 'i'
+        if 'matrix' in item:
+            led_key_layout.append(temp_layout)
+            led_key_labels.append(temp_label)
+        else:
+            led_layout.append(temp_layout)
+            led_layout_labels.append(temp_label)
 
     # Print the header
     if title_caps:
-        cli.echo('{fg_blue}LED Layout for "%s"{fg_reset}:', layout_name)
+        cli.echo('{fg_blue}LED Positons for "%s"{fg_reset}:', layout_name)
     else:
         cli.echo('{fg_blue}led_layout_%s{fg_reset}:', layout_name)
 
-    print(render_layout(layout['layout'], cli.config.info.ascii, labels))
-    print(render_layout(underglow, cli.config.info.ascii, underglow_labels))
-
+    if split_keys:
+        print(render_layout(led_key_layout, cli.config.info.ascii, led_key_labels))
+        print(render_layout(led_layout, cli.config.info.ascii, led_layout_labels))
+    else:
+        print(render_layout(led_key_layout + led_layout, cli.config.info.ascii, led_key_labels + led_layout_labels))
 
 def print_friendly_output(kb_info_json):
     """Print the info.json in a friendly text format.
@@ -185,6 +239,8 @@ def print_parsed_rules_mk(keyboard_name):
 @cli.argument('-m', '--matrix', action='store_true', help='Render the layouts with matrix information.')
 @cli.argument('-f', '--format', default='friendly', arg_only=True, help='Format to display the data in (friendly, text, json) (Default: friendly).')
 @cli.argument('--led', action='store_true', help='Render the LED config with layout information.')
+@cli.argument('--flags', action='store_true', default=False, help='Display LED flags when showing led config')
+@cli.argument('--separate', action='store_true', default=False, help='Display LED key position separately')
 @cli.argument('--ascii', action='store_true', default=not UNICODE_SUPPORT, help='Render layout box drawings in ASCII only.')
 @cli.argument('-r', '--rules-mk', action='store_true', help='Render the parsed values of the keyboard\'s rules.mk file.')
 @cli.subcommand('Keyboard information.')
@@ -239,7 +295,8 @@ def info(cli):
         show_matrix(kb_info_json, title_caps)
 
     if cli.config.info.led:
-        show_led_config(kb_info_json, title_caps)
+        show_led_matrix_config(kb_info_json, title_caps, cli.config.info.flags)
+        show_led_positional_config(kb_info_json, title_caps, cli.config.info.flags, cli.config.info.separate)
 
     if cli.config.info.keymap:
         show_keymap(kb_info_json, title_caps)

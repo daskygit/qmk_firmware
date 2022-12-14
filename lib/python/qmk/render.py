@@ -111,7 +111,7 @@ def render_layout(layout_data, render_ascii, key_labels=None):
     # skim over the layout to work out the bounds
     size = 0
     for key in layout_data:
-        size = max(size, key.get('x', 0) + key.get('w', 1))
+        size = int(max(size, key.get('x', 0) + key.get('w', 1)))
 
     # scale keys to fit terminal size - pick nearest even?
     terminal_width = _clamp(80, shutil.get_terminal_size().columns, 200)
