@@ -3,7 +3,7 @@
 #include "dasky.h"
 #include "tap_dances.h"
 
-void vol_finished(qk_tap_dance_state_t *state, void *user_data) {
+void vol_finished(tap_dance_state_t *state, void *user_data) {
     switch (state->count) {
         case 1:
             if (!state->pressed || state->interrupted) {
@@ -23,7 +23,7 @@ void vol_finished(qk_tap_dance_state_t *state, void *user_data) {
 }
 
 
-void rgb_finished(qk_tap_dance_state_t *state, void *user_data) {
+void rgb_finished(tap_dance_state_t *state, void *user_data) {
     switch (state->count) {
         default:
         case 1:
@@ -61,7 +61,7 @@ void rgb_finished(qk_tap_dance_state_t *state, void *user_data) {
 
 
 // clang-format off
-qk_tap_dance_action_t tap_dance_actions[] = {
+tap_dance_action_t tap_dance_actions[] = {
     [TD_GAME] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_RSFT, _GAMING),
     [TD_QUOT] = ACTION_TAP_DANCE_DOUBLE(KC_QUOT, KC_F12),
     [TDE_VOL] = ACTION_TAP_DANCE_FN(vol_finished),
