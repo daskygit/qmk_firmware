@@ -21,7 +21,7 @@
 #endif
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    if (state & _GAMING) {
+    if (layer_state_is(_GAMING)) {
         combo_disable();
     } else {
         combo_enable();
