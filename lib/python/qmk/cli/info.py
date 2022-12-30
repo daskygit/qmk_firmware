@@ -84,9 +84,11 @@ def show_led_matrix_config(kb_info_json, title_caps=True, show_flags=False):
 
     labels = []
     for key in layout['layout']:
+        key_labeled = False
         for index, item in enumerate(led_config, start=0):
             if 'matrix' in item:
                 if item['matrix'] == key['matrix']:
+                    key_labeled = True
                     labels.append(str(index))
                     if show_flags:
                         if 'flags' in item:
@@ -99,6 +101,8 @@ def show_led_matrix_config(kb_info_json, title_caps=True, show_flags=False):
                                     labels[-1] = labels[-1] + 'k'
                                 if item['flags'] & 8:
                                     labels[-1] = labels[-1] + 'i'
+        if key_labeled == False:
+            labels.append("")
 
     # Print the header
     if title_caps:
