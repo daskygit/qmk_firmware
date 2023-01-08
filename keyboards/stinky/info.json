@@ -1,0 +1,41 @@
+{
+    "manufacturer": "Stelulu Technology Inc.",
+    "keyboard_name": "Stinky (QMK)",
+    "maintainer": "Dasky",
+    "diode_direction": "COL2ROW",
+    "features": {
+        "backlight": false,
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": false,
+        "grave_esc": false,
+        "lto": true,
+        "magic": false,
+        "mousekey": false,
+        "nkro": false,
+        "space_cadet": false,
+        "tap_dance": false,
+        "xap": true
+    },
+    "matrix_pins": {
+        "direct": [["C2", "D0", "D2", "D1"]]
+    },
+    "processor": "at90usb162",
+    "url": "",
+    "usb": {
+        "device_version": "1.0.0",
+        "pid": "0x5342",
+        "vid": "0x444B"
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "matrix": [0, 0], "x": 0, "y": 0 },
+                { "matrix": [0, 1], "x": 1, "y": 0 },
+                { "matrix": [0, 2], "x": 2, "y": 0 },
+                { "matrix": [0, 3], "x": 3, "y": 0 }
+            ]
+        }
+    }
+}
