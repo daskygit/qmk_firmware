@@ -26,6 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
 #    include "pointing_device_auto_mouse.h"
 #endif
+#ifdef POINTING_DEVICE_MODES_ENABLE
+#    include "pointing_device_modes.h"
+#endif
 
 #ifndef POINTING_DEVICE_COUNT
 #    define POINTING_DEVICE_COUNT 1

@@ -129,7 +129,7 @@ static inline int8_t pointing_device_hv_clamp(int16_t value) {
 }
 
 /**
- * @brief clamps int16_t to int8_t
+ * @brief clamps clamp_range_t to mouse_xy_report_t
  *
  * @param[in] clamp_range_t value
  * @return mouse_xy_report_t clamped value
