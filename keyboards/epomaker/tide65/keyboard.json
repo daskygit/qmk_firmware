@@ -1,16 +1,28 @@
 {
     "manufacturer": "HS",
     "keyboard_name": "EPOMAKER TIDE 65",
-    "maintainer": "sdk66",
+    "maintainer": "qmk",
     "bootloader": "wb32-dfu",
+    "build": {
+        "lto": true
+    },
     "diode_direction": "ROW2COL",
+    "eeprom": {
+        "driver": "wear_leveling",
+        "wear_leveling": {
+            "backing_size": 8192,
+            "driver": "spi_flash"
+        }
+    },
     "encoder": {
         "rotary": [
-            {"pin_a": "B7", "pin_b": "B6"}
+            {"pin_a": "B7", "pin_b": "B6", "resolution": 2}
         ]
     },
     "features": {
         "bootmagic": true,
+        "console": true,
+        "deferred_exec": true,
         "encoder": true,
         "extrakey": true,
         "mousekey": true,
@@ -23,6 +35,7 @@
     },
     "processor": "WB32FQ95",
     "rgb_matrix": {
+        "max_brightness": 127,
         "animations": {
             "alphas_mods": true,
             "band_pinwheel_sat": true,
@@ -139,17 +152,19 @@
             {"matrix": [4, 12], "x": 192, "y": 64, "flags": 4},
             {"matrix": [4, 13], "x": 208, "y": 64, "flags": 4},
             {"matrix": [4, 14], "x": 224, "y": 64, "flags": 4}
-        ]
+        ],
+        "led_flush_limit": 32
     },
     "url": "",
     "usb": {
         "device_version": "0.0.1",
-        "force_nkro": true,
+        "no_startup_check": true,
         "pid": "0xE463",
         "suspend_wakeup_delay": 1000,
         "vid": "0x342D"
     },
     "ws2812": {
+        "driver": "spi",
         "pin": "B15"
     },
     "layouts": {

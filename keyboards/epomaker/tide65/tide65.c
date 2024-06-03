@@ -1,10 +1,28 @@
-// Copyright 2024 SDK (@sdk66)
+// Copyright 2024 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
+#include "rf_driver.h"
 
 void keyboard_pre_init_kb(void) {
-    gpio_set_pin_output(A5);
-    gpio_write_pin_high(A5);
+    gpio_set_pin_output(RGB_POWER_PIN);
+    gpio_write_pin_high(RGB_POWER_PIN);
+
     keyboard_pre_init_user();
+}
+
+void keyboard_post_init_kb(void) {
+    keyboard_post_init_rf();
+    keyboard_post_init_user();
+}
+
+void housekeeping_task_kb(void) {
+    housekeeping_task_rf();
+}
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    if (!process_record_user(keycode, record)) {
+        return false;
+    }
+    return process_record_rf(keycode, record);
 }
