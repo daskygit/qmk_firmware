@@ -26,11 +26,13 @@ typedef enum {
 
 typedef struct {
     bool          rf_connected;
+    bool          pairing;
     bool          vbus_detected;
     uint8_t       keyboard_leds_state;
     uint8_t       battery_level;
     uint8_t       battery_charging;
     rf_profiles_t current_profile;
+    uint8_t       last_status;
 } rf_config_t;
 
 void housekeeping_task_rf(void);
