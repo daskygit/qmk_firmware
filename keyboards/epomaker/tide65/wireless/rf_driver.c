@@ -163,6 +163,9 @@ uint32_t rf_maintainence_task(uint32_t trigger_time, void *cb_arg) {
         rf_dprintf(rf_runtime_config.rf_connected ? " Connnected" : " Disconnected");
         rf_dprintf(" - Last status: ");
         rf_dprintf(rf_status_to_string(rf_runtime_config.last_status));
+        if (rf_runtime_config.pairing) {
+            rf_dprintf(" - Pairing");
+        }
     }
     rf_dprintf("\n");
 #endif
@@ -334,7 +337,7 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                         rf_runtime_config.rf_connected = false;
                         break;
                     case RF_STATUS_SWITCHING_PROFILE:
-                        rf_runtime_config.pairing = true;
+                        rf_runtime_config.pairing = false;
                         break;
                     case RF_STATUS_NOT_CONNECTED:
                         rf_runtime_config.rf_connected = false;
@@ -347,6 +350,7 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                     case RF_STATUS_UNKNOWN:
                         break;
                     default:
+                        rf_dprintf("RF Unhandled Status: 0x%x\n", packet->data);
                         break;
                 }
                 rf_send_packet(&rf_packet_ack, false);
@@ -365,7 +369,11 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
     } else if (packet->cmd == RF_ID_VIA) {
         rf_handle_via();
     } else {
+        if (rf_packet_is_ack(packet)) {
+            rf_dprintf("RF Late ACK\n");
+    } else {
         rf_dprintf("RF Invalid Packet: 0x%x 0x%x 0x%x\n", packet->cmd, packet->data, packet->checksum);
+        }
     }
 }
 
