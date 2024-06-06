@@ -371,8 +371,8 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
     } else {
         if (rf_packet_is_ack(packet)) {
             rf_dprintf("RF Late ACK\n");
-    } else {
-        rf_dprintf("RF Invalid Packet: 0x%x 0x%x 0x%x\n", packet->cmd, packet->data, packet->checksum);
+        } else {
+            rf_dprintf("RF Invalid Packet: 0x%x 0x%x 0x%x\n", packet->cmd, packet->data, packet->checksum);
         }
     }
 }
@@ -383,4 +383,26 @@ void rf_receive_check(void) {
         uart_receive_timeout((uint8_t *)&packet, sizeof(rf_packet_generic_3_byte_t), 10);
         rf_handle_packet(&packet);
     }
+}
+
+bool is_battery_charging(void) {
+    return rf_runtime_config.battery_charging;
+}
+uint8_t get_battery_level(void) {
+    return rf_runtime_config.battery_level;
+}
+
+bool is_pairing(void) {
+    return rf_runtime_config.pairing;
+}
+bool is_connected(void) {
+    return rf_runtime_config.rf_connected;
+}
+
+bool is_usb_connected(void) {
+    return rf_runtime_config.vbus_detected;
+}
+
+rf_profiles_t get_current_profile(void) {
+    return rf_runtime_config.current_profile;
 }

@@ -41,8 +41,12 @@ bool process_record_rf(uint16_t keycode, keyrecord_t *record);
 
 void rf_switch_profile(rf_profiles_t profile);
 
-bool    is_battery_charging(void);
-uint8_t battery_level(void);
-
 void rf_pair_bt(void);
 void rf_pair_dongle(void);
+
+bool          is_battery_charging(void);
+uint8_t       get_battery_level(void);
+bool          is_pairing(void);
+bool          is_connected(void);
+bool          is_usb_connected(void);
+rf_profiles_t get_current_profile(void);
