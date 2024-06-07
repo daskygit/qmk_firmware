@@ -3,6 +3,7 @@
 
 #include "quantum.h"
 #include "rf_driver.h"
+#include "lib/lib8tion/lib8tion.h"
 
 void keyboard_pre_init_kb(void) {
     gpio_set_pin_output(RGB_POWER_PIN);
@@ -25,4 +26,22 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
     return process_record_rf(keycode, record);
+}
+
+bool rgb_matrix_indicators_kb(void) {
+    if (!rgb_matrix_indicators_user()) {
+        return false;
+    }
+    if (is_battery_charging()) {
+        uint8_t red   = 99 - scale8(255, get_battery_level());
+        uint8_t green = scale8(255, get_battery_level());
+
+        rgb_matrix_set_color(57, red, green, 0);
+    }
+
+    if (host_keyboard_led_state().caps_lock) {
+        rgb_matrix_set_color(8, 255, 255, 255);
+    }
+
+    return true;
 }
