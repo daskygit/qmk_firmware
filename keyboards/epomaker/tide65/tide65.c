@@ -19,6 +19,19 @@ void keyboard_post_init_kb(void) {
 
 void housekeeping_task_kb(void) {
     housekeeping_task_rf();
+    static bool idle = false;
+    if (last_input_activity_elapsed() > 15000) {
+        if (!idle) {
+            idle = true;
+            gpio_write_pin_low(RGB_POWER_PIN);
+            rgb_matrix_disable_noeeprom();
+        }
+        __WFI();
+    } else if (idle) {
+        idle = false;
+        gpio_write_pin_high(RGB_POWER_PIN);
+        rgb_matrix_enable_noeeprom();
+    }
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
