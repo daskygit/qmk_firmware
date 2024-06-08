@@ -89,19 +89,20 @@ void housekeeping_task_rf(void) {
         }
         init_done = okay;
     } else {
-        rf_receive_check();
-
         static bool idle = false;
         if (last_input_activity_elapsed() > RF_SLEEP_TIME_MS) {
             if (!idle) {
                 idle = true;
                 cancel_deferred_exec(rf_maintainence_task_token);
             }
+            __WFI();
         } else if (idle) {
             idle = false;
             while (!rf_send_packet(&rf_packet_profile_dongle_2_4, true))
                 ;
             rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
+        } else {
+            rf_receive_check();
         }
     }
 }
