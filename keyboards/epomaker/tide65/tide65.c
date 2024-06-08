@@ -4,6 +4,7 @@
 #include "quantum.h"
 #include "rf_driver.h"
 #include "lib/lib8tion/lib8tion.h"
+#include "gpio.h"
 
 void keyboard_pre_init_kb(void) {
     gpio_set_pin_output(RGB_POWER_PIN);
@@ -17,16 +18,55 @@ void keyboard_post_init_kb(void) {
     keyboard_post_init_user();
 }
 
+static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
+static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+
+void matrix_wait_for_interrupt(void) {
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    PWR->CR0 &= ~PWR_CR0_PDDS_Msk;
+
+    // PWR->CR0 &= ~(0x3U << 1U); // reg normal
+    PWR->CR0 |= (0x2U << 1U); // reg ultra low power
+
+    // Set up row/col pins and attach callback
+    for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
+        gpio_set_pin_output(col_pins[i]);
+        gpio_write_pin_low(col_pins[i]);
+    }
+    for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
+        gpio_set_pin_input_high(row_pins[i]);
+        palEnablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
+    }
+
+    // Wait for an interrupt
+    __WFI();
+    __NVIC_SystemReset();
+    // wb32_clock_init();
+
+    // Now that the interrupt has woken us up, reset all the row/col pins back to defaults
+    for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
+        palDisablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]));
+        gpio_write_pin_high(row_pins[i]);
+        gpio_set_pin_input_high(row_pins[i]);
+    }
+    for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
+        gpio_write_pin_high(col_pins[i]);
+        gpio_set_pin_input_high(col_pins[i]);
+    }
+}
+
 void housekeeping_task_kb(void) {
     housekeeping_task_rf();
     static bool idle = false;
-    if (last_input_activity_elapsed() > 15000) {
+    if (last_input_activity_elapsed() > DEEP_SLEEP_TIME_MS) {
+        matrix_wait_for_interrupt();
+    }
+    if (last_input_activity_elapsed() > RGB_SLEEP_TIME_MS) {
         if (!idle) {
             idle = true;
             gpio_write_pin_low(RGB_POWER_PIN);
             rgb_matrix_disable_noeeprom();
         }
-        __WFI();
     } else if (idle) {
         idle = false;
         gpio_write_pin_high(RGB_POWER_PIN);

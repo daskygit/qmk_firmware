@@ -92,7 +92,7 @@ void housekeeping_task_rf(void) {
         rf_receive_check();
 
         static bool idle = false;
-        if (last_input_activity_elapsed() > 30000) {
+        if (last_input_activity_elapsed() > RF_SLEEP_TIME_MS) {
             if (!idle) {
                 idle = true;
                 cancel_deferred_exec(rf_maintainence_task_token);
