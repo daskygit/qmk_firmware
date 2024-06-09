@@ -19,7 +19,7 @@ rf_config_t rf_runtime_config = {
     .battery_charging    = false,
     .current_profile     = rf_profile_wired,
     .pairing             = false,
-    .on                  = false,
+    .on                  = true,
 
 };
 
