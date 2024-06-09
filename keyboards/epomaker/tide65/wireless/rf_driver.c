@@ -19,6 +19,8 @@ rf_config_t rf_runtime_config = {
     .battery_charging    = false,
     .current_profile     = rf_profile_wired,
     .pairing             = false,
+    .on                  = false,
+
 };
 
 deferred_token rf_maintainence_task_token;
@@ -89,14 +91,13 @@ void rf_task(void) {
         }
         init_done = okay;
     } else {
-        static bool idle = false;
         if (last_input_activity_elapsed() > RF_SLEEP_TIME_MS) {
-            if (!idle) {
-                idle = true;
+            if (rf_runtime_config.on) {
+                rf_runtime_config.on = false;
                 cancel_deferred_exec(rf_maintainence_task_token);
             }
-        } else if (idle) {
-            idle = false;
+        } else if (!rf_runtime_config.on) {
+            rf_runtime_config.on = true;
             while (!rf_send_packet(&rf_packet_profile_dongle_2_4, true)) // this mimics original firmware behaviour
                 ;
             rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
@@ -414,6 +415,10 @@ bool is_connected(void) {
 
 bool is_usb_connected(void) {
     return rf_runtime_config.vbus_detected;
+}
+
+bool is_rf_on(void) {
+    return rf_runtime_config.on;
 }
 
 rf_profiles_t get_current_profile(void) {

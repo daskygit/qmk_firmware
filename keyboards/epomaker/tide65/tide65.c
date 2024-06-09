@@ -61,15 +61,6 @@ void lpm_start(void) {
         palEnablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
     }
 
-    // for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
-    //     gpio_set_pin_output(row_pins[i]);
-    //     gpio_write_pin_high(row_pins[i]);
-    // }
-    // for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
-    //     gpio_set_pin_input_low(col_pins[i]);
-    //     palEnablePadEvent(PAL_PORT(col_pins[i]), PAL_PAD(col_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
-    // }
-
     // usb_disconnect(); // this causes increased power consumption during lpm
 
     //  Wait for an interrupt
@@ -120,7 +111,7 @@ void lpm_start(void) {
 void protocol_keyboard_task(void) {
     rf_task();
     static bool idle = false;
-    if (last_input_activity_elapsed() > DEEP_SLEEP_TIME_MS) {
+    if (!is_rf_on()) {
         lpm_start();
         rf_task();
     }

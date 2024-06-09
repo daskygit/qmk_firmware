@@ -26,6 +26,7 @@ typedef enum {
 
 typedef struct {
     bool          rf_connected;
+    bool          on;
     bool          pairing;
     bool          vbus_detected;
     uint8_t       keyboard_leds_state;
@@ -50,3 +51,4 @@ bool          is_pairing(void);
 bool          is_connected(void);
 bool          is_usb_connected(void);
 rf_profiles_t get_current_profile(void);
+bool          is_rf_on(void);
