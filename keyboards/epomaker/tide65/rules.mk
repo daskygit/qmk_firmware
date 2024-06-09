@@ -7,5 +7,5 @@ SRC += rf_driver.c
 SRC += rf_reports.c
 SRC += rf_packets.c
 
-
+DEBOUNCE_TYPE = asym_eager_defer_pk
 
