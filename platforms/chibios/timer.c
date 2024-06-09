@@ -57,6 +57,12 @@ static void update_fn(struct ch_virtual_timer *timer, void *arg) {
 // OVERFLOW_ADJUST_TICKS corresponds to an integer number of seconds).
 #define OVERFLOW_ADJUST_MS (TIME_I2MS(OVERFLOW_ADJUST_TICKS))
 
+void timer_reset(uint32_t timer_last) {
+    ticks_offset = get_system_time_ticks();
+    last_ticks   = 0;
+    ms_offset    = timer_last;
+}
+
 void timer_init(void) {
     timer_clear();
 #if CH_CFG_ST_RESOLUTION < 32
