@@ -72,7 +72,7 @@ void keyboard_post_init_rf(void) {
     uart_init(115200);
 }
 
-void housekeeping_task_rf(void) {
+void rf_task(void) {
     static bool init_done = false;
     if (!init_done) {
         bool okay = rf_send_packet(&rf_packet_init_a, true);
@@ -95,10 +95,9 @@ void housekeeping_task_rf(void) {
                 idle = true;
                 cancel_deferred_exec(rf_maintainence_task_token);
             }
-            __WFI();
         } else if (idle) {
             idle = false;
-            while (!rf_send_packet(&rf_packet_profile_dongle_2_4, true))
+            while (!rf_send_packet(&rf_packet_profile_dongle_2_4, true)) // this mimics original firmware behaviour
                 ;
             rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
         } else {

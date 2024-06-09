@@ -5,6 +5,8 @@
 #include "rf_driver.h"
 #include "lib/lib8tion/lib8tion.h"
 #include "gpio.h"
+#include "debug.h"
+#include "print.h"
 
 void keyboard_pre_init_kb(void) {
     gpio_set_pin_output(RGB_POWER_PIN);
@@ -21,15 +23,33 @@ void keyboard_post_init_kb(void) {
 static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
 static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
 
-void deep_sleep(void) {
+void lpm_start(void) {
+    uint32_t timer_before_lpm = timer_read32();
+
+    DBGMCU->CR &= ~0xFFFFC0D8; // disable all debug during stop
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
     // keep DBP bit
     PWR->CR0 &= PWR_CR0_DBP;
 
-    // Stop mode - SP2
-    PWR->CR0 |= 0x22002;
-    PWR->CFGR = 0x3BE;
+    // // SP1
+    // PWR->CR0 |= 0x900;
+    // PWR->CFGR = 0x3F;
+
+    // SP2
+    // PWR->CR0 |= 0x22002;
+    // PWR->CFGR = 0x3BE;
+
+    // // SP3 -  this turns off 32k sram
+    // PWR->CR0 |= 0x63004;
+    // PWR->CFGR = 0x3BF;
+
+    // // SP4 -  this turns off 32k sram
+    // PWR->CR0 |= 0x7B004;
+    // PWR->CFGR = 0x3B3;
+
+    PWR->CR0 |= 0x3B004;
+    PWR->CFGR = 0x3B3;
 
     // Set up row/col pins and attach callback
     for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
@@ -41,29 +61,68 @@ void deep_sleep(void) {
         palEnablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
     }
 
-    // Wait for an interrupt
-    __WFI();
-    __NVIC_SystemReset();
-
-    // Investigate bring back up without reset
-
-    // Now that the interrupt has woken us up, reset all the row/col pins back to defaults
     // for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
-    //     palDisablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]));
+    //     gpio_set_pin_output(row_pins[i]);
     //     gpio_write_pin_high(row_pins[i]);
-    //     gpio_set_pin_input_high(row_pins[i]);
     // }
     // for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
-    //     gpio_write_pin_high(col_pins[i]);
-    //     gpio_set_pin_input_high(col_pins[i]);
+    //     gpio_set_pin_input_low(col_pins[i]);
+    //     palEnablePadEvent(PAL_PORT(col_pins[i]), PAL_PAD(col_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
     // }
+
+    // usb_disconnect(); // this causes increased power consumption during lpm
+
+    //  Wait for an interrupt
+    __WFI();
+    //__NVIC_SystemReset();
+
+    chSysLock();
+    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+
+    if (PWR->SR1 & PWR_SR1_SPF) { // system was stopped
+        PWR->CR1 |= PWR_CR1_CSPF;
+        if (PWR->SR1 & PWR_SR1_CKF) { // clocks were reset
+            PWR->CR1 |= PWR_CR1_CCKF;
+            wb32_clock_init();
+            rccEnableSPIM2();
+            rccEnableQSPI();
+            rccEnableUART3();
+            rccEnableAPB1(RCC_APB1ENR_GPIOAEN);
+            rccEnableAPB1(RCC_APB1ENR_GPIOBEN);
+            rccEnableAPB1(RCC_APB1ENR_GPIOCEN);
+            rccEnableAPB1(RCC_APB1ENR_GPIODEN);
+            stInit();
+            timer_reset(timer_before_lpm);
+        }
+    }
+
+    void init_usb_driver(USBDriver * usbp);
+    init_usb_driver(&USBD1);
+    chSysUnlock();
+
+    void last_matrix_activity_trigger(void);
+    last_matrix_activity_trigger();
+
+    // Now that the interrupt has woken us up, reset all the row / col pins back to defaults
+    for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
+        palDisablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]));
+        gpio_write_pin_high(row_pins[i]);
+        gpio_set_pin_input_high(row_pins[i]);
+    }
+    for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
+        gpio_write_pin_high(col_pins[i]);
+        gpio_set_pin_input_high(col_pins[i]);
+    }
+
+    matrix_scan();
 }
 
-void housekeeping_task_kb(void) {
-    housekeeping_task_rf();
+void protocol_keyboard_task(void) {
+    rf_task();
     static bool idle = false;
     if (last_input_activity_elapsed() > DEEP_SLEEP_TIME_MS) {
-        deep_sleep();
+        lpm_start();
+        rf_task();
     }
     if (last_input_activity_elapsed() > RGB_SLEEP_TIME_MS) {
         if (!idle) {
@@ -76,6 +135,7 @@ void housekeeping_task_kb(void) {
         gpio_write_pin_high(RGB_POWER_PIN);
         rgb_matrix_enable_noeeprom();
     }
+    keyboard_task();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

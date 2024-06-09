@@ -35,7 +35,7 @@ typedef struct {
     uint8_t       last_status;
 } rf_config_t;
 
-void housekeeping_task_rf(void);
+void rf_task(void);
 void keyboard_post_init_rf(void);
 bool process_record_rf(uint16_t keycode, keyrecord_t *record);
 
