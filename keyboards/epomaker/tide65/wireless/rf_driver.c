@@ -321,6 +321,8 @@ bool rf_packet_is_valid(uint8_t *data, uint8_t length) {
     return false;
 }
 
+__attribute__((weak)) void rf_status_update_kb(uint8_t status) {};
+
 void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
     if (rf_packet_is_valid((uint8_t *)packet, 3)) {
         switch ((rf_message_ids_t)packet->cmd) {
@@ -367,7 +369,8 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                         rf_dprintf("RF Unhandled Status: 0x%x\n", packet->data);
                         break;
                 }
-                rf_send_packet(&rf_packet_ack, false);
+                rf_send_packet(&rf_packet_ack, false, false);
+                rf_status_update_kb(packet->data);
                 break;
             case RF_ID_BATTERY_LEVEL: // Battery Level
                 rf_runtime_config.battery_level = packet->data;
