@@ -16,7 +16,7 @@ void rf_send_keyboard(report_keyboard_t *report) {
     };
     memcpy(rf_report.keys, report->keys, RF_KEYBOARD_REPORT_KEYS);
     rf_report.checksum = rf_generate_checksum((uint8_t *)&rf_report, 9);
-    rf_send_data((uint8_t *)&rf_report, 10, true);
+    rf_send_data((uint8_t *)&rf_report, 10, true, true);
 }
 
 uint8_t rf_keyboard_leds(void) {
@@ -67,12 +67,12 @@ void rf_send_nkro(report_nkro_t *report) {
         }
         memcpy(rf_report_keyboard.keys, temp_keyboard_report.keys, RF_KEYBOARD_REPORT_KEYS);
         rf_report_keyboard.checksum = rf_generate_checksum((uint8_t *)&rf_report_keyboard, sizeof(rf_report_keyboard_t) - 1);
-        rf_send_data((uint8_t *)&rf_report_keyboard, sizeof(rf_report_keyboard_t), true);
+        rf_send_data((uint8_t *)&rf_report_keyboard, sizeof(rf_report_keyboard_t), true, true);
     }
 
     memcpy(rf_nkro_report.bits, report->bits, RF_NKRO_REPORT_BYTES);
     rf_nkro_report.checksum = rf_generate_checksum((uint8_t *)&rf_nkro_report, sizeof(rf_report_nkro_t) - 1);
-    rf_send_data((uint8_t *)&rf_nkro_report, RF_NKRO_REPORT_BYTES + 2, true);
+    rf_send_data((uint8_t *)&rf_nkro_report, RF_NKRO_REPORT_BYTES + 2, true, true);
 }
 
 static inline uint8_t SYSTEM2RF(uint16_t usage) {
@@ -96,7 +96,7 @@ void rf_send_extra(report_extra_t *report) {
                 .usage = report->usage,
             };
             consumer_report.checksum = rf_generate_checksum((uint8_t *)&consumer_report, sizeof(rf_report_consumer_t) - 1);
-            rf_send_data((uint8_t *)&consumer_report, sizeof(rf_report_consumer_t), true);
+            rf_send_data((uint8_t *)&consumer_report, sizeof(rf_report_consumer_t), true, true);
             break;
         case REPORT_ID_SYSTEM:;
             rf_report_system_t system_report = {
@@ -104,7 +104,7 @@ void rf_send_extra(report_extra_t *report) {
                 .usage = SYSTEM2RF(report->usage),
             };
             system_report.checksum = rf_generate_checksum((uint8_t *)&system_report, sizeof(rf_report_system_t) - 1);
-            rf_send_data((uint8_t *)&system_report, sizeof(rf_report_system_t), true);
+            rf_send_data((uint8_t *)&system_report, sizeof(rf_report_system_t), true, true);
             break;
     };
 }
@@ -119,5 +119,5 @@ void rf_send_mouse(report_mouse_t *report) {
         .v       = report->v,
     };
     mouse_report.checksum = rf_generate_checksum((uint8_t *)&mouse_report, sizeof(rf_report_mouse_t) - 1);
-    rf_send_data((uint8_t *)&mouse_report, sizeof(rf_report_mouse_t), true);
+    rf_send_data((uint8_t *)&mouse_report, sizeof(rf_report_mouse_t), true, true);
 }

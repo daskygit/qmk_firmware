@@ -104,8 +104,6 @@ void lpm_start(void) {
         gpio_write_pin_high(col_pins[i]);
         gpio_set_pin_input_high(col_pins[i]);
     }
-
-    matrix_scan();
 }
 
 void protocol_keyboard_task(void) {
@@ -114,6 +112,7 @@ void protocol_keyboard_task(void) {
     if (!is_rf_on()) {
         lpm_start();
         rf_task();
+        matrix_scan();
     }
     if (last_input_activity_elapsed() > RGB_SLEEP_TIME_MS) {
         if (!idle) {

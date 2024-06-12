@@ -3,6 +3,14 @@
 
 #pragma once
 
+#define MAX_ABC(a, b, c) ((a > b) && (a > c)) ? a : ((b > a) && (b > c)) ? b : c
+#ifdef VIA_ENABLE
+#    define VIA_PACKET_SIZE 36
+#else
+#    define VIA_PACKET_SIZE 0
+#endif
+#define MAX_PACKET_SIZE MAX_ABC(sizeof(rf_packet_dongle_manufacturer_t), sizeof(rf_packet_product_t), VIA_PACKET_SIZE)
+
 typedef struct PACKED {
     uint8_t cmd;
     uint8_t data;
@@ -24,6 +32,11 @@ typedef struct PACKED {
     uint8_t manufacturer_string[sizeof(MANUFACTURER)];
     uint8_t checksum;
 } rf_packet_dongle_manufacturer_t;
+
+typedef struct PACKED {
+    uint8_t data[MAX_PACKET_SIZE];
+    uint8_t length;
+} rf_packet_buffer_t;
 
 typedef struct PACKED {
     uint8_t  cmd;

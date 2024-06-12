@@ -17,8 +17,8 @@
 #endif
 
 uint32_t rf_maintainence_task(uint32_t trigger_time, void *cb_arg);
-bool     rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack);
-bool     rf_send_data(uint8_t *data, uint8_t length, bool check_for_ack);
+bool     rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack, bool retry);
+bool     rf_send_data(uint8_t *data, uint8_t length, bool check_for_ack, bool retry);
 void     rf_handle_packet(rf_packet_generic_3_byte_t *packet);
 void     rf_receive_check(void);
 uint8_t  rf_generate_checksum(uint8_t *data, uint8_t length);

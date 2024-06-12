@@ -25,6 +25,43 @@ rf_config_t rf_runtime_config = {
 
 deferred_token rf_maintainence_task_token;
 
+#define PRB_SIZE 8
+rf_packet_buffer_t prb[PRB_SIZE] = {0};
+uint8_t            prb_head      = 0;
+uint8_t            prb_tail      = 0;
+
+bool rf_prb_put(uint8_t *data, uint8_t length) {
+    uint8_t next = (prb_head + 1) % PRB_SIZE;
+    if (next != prb_tail) {
+        memcpy(prb[next].data, data, length);
+        prb[next].length = length;
+        prb_head         = next;
+        return true;
+    }
+    return false; // buffer full
+}
+
+bool rf_prb_get(rf_packet_buffer_t *packet) {
+    if (prb_head != prb_tail) {
+        packet = &prb[prb_tail];
+        if (packet->data[0] == 0) {
+            return false;
+        }
+        return true;
+    }
+    return false; // buffer empty
+}
+
+void rf_prb_advance_get(void) {
+    prb_tail = (prb_tail + 1) % PRB_SIZE;
+}
+
+void rf_prb_clear(void) {
+    memset(prb, 0, sizeof(prb));
+    prb_head = 0;
+    prb_tail = 0;
+}
+
 // void rf_set_leds(uint8_t leds) {
 //     rf_runtime_config.keyboard_leds_state = leds;
 // }
@@ -77,13 +114,13 @@ void keyboard_post_init_rf(void) {
 void rf_task(void) {
     static bool init_done = false;
     if (!init_done) {
-        bool okay = rf_send_packet(&rf_packet_init_a, true);
+        bool okay = rf_send_packet(&rf_packet_init_a, true, false);
 
         if (okay) {
-            okay = rf_send_packet(&rf_packet_init_b, true);
+            okay = rf_send_packet(&rf_packet_init_b, true, false);
         }
         if (okay) {
-            okay = rf_send_packet(&rf_packet_init_c, true);
+            okay = rf_send_packet(&rf_packet_init_c, true, false);
         }
         if (okay) {
             rf_switch_profile(rf_profile_dongle);
@@ -98,10 +135,11 @@ void rf_task(void) {
             }
         } else if (!rf_runtime_config.on) {
             rf_runtime_config.on = true;
-            while (!rf_send_packet(&rf_packet_profile_dongle_2_4, true)) // this mimics original firmware behaviour
-                ;
+            rf_switch_profile(rf_runtime_config.current_profile);
             rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
         } else {
+            void rf_retry_failed_packets(void);
+            rf_retry_failed_packets();
             rf_receive_check();
         }
     }
@@ -184,36 +222,46 @@ uint32_t rf_maintainence_task(uint32_t trigger_time, void *cb_arg) {
     rf_dprintf("\n");
 #endif
 
-    return rf_send_packet(&rf_packet_keep_alive, true) ? RF_MAINTAINENCE_MS : 100;
+    return rf_send_packet(&rf_packet_keep_alive, true, false) ? RF_MAINTAINENCE_MS : 100;
 }
 
 void rf_pair_bt(void) {
     if (rf_runtime_config.current_profile != rf_profile_wired && rf_runtime_config.current_profile != rf_profile_dongle) {
         // Select bt profile, send pair a, send bt product, send vid/pid, send pair b
-        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_a, sizeof(rf_packet_cmd_pair_a), true))
+        fast_timer_t bail = timer_read_fast() + 1000;
+
+        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_a, sizeof(rf_packet_cmd_pair_a), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_bt_product, sizeof(rf_packet_bt_product), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_bt_product, sizeof(rf_packet_bt_product), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_vidpid, sizeof(rf_packet_vidpid), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_vidpid, sizeof(rf_packet_vidpid), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_b, sizeof(rf_packet_cmd_pair_b), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_b, sizeof(rf_packet_cmd_pair_b), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
+
+        if (timer_expired_fast(timer_read_fast(), bail)) {
+            rf_dprintf("RF BT pairing sequence failed.\n");
+        }
     }
 }
 
 void rf_pair_dongle(void) {
     // Select dongle profile, send dongle manufacturer, send dongle product, send vid/pid, send pair a, send pair b
     if (rf_runtime_config.current_profile == rf_profile_dongle) {
-        while (!rf_send_data((uint8_t *)&rf_packet_dongle_manufacturer, sizeof(rf_packet_dongle_manufacturer), true))
+        fast_timer_t bail = timer_read_fast() + 1000;
+        while (!rf_send_data((uint8_t *)&rf_packet_dongle_manufacturer, sizeof(rf_packet_dongle_manufacturer), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_dongle_product, sizeof(rf_packet_dongle_product), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_dongle_product, sizeof(rf_packet_dongle_product), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_vidpid, sizeof(rf_packet_vidpid), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_vidpid, sizeof(rf_packet_vidpid), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_a, sizeof(rf_packet_cmd_pair_a), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_a, sizeof(rf_packet_cmd_pair_a), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
-        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_b, sizeof(rf_packet_cmd_pair_b), true))
+        while (!rf_send_data((uint8_t *)&rf_packet_cmd_pair_b, sizeof(rf_packet_cmd_pair_b), true, false) && !timer_expired_fast(timer_read_fast(), bail))
             ;
+        if (timer_expired_fast(timer_read_fast(), bail)) {
+            rf_dprintf("RF dongle pairing sequence failed.\n");
+        }
     }
 }
 
@@ -232,27 +280,23 @@ void rf_switch_profile(rf_profiles_t profile) {
 
     switch (profile) {
         case rf_profile_dongle:
-            rf_send_packet(&rf_packet_profile_dongle_2_4, true);
+            rf_send_packet(&rf_packet_profile_dongle_2_4, true, true);
             host_set_driver(&rf_host_driver);
-            rf_runtime_config.rf_connected = false;
             break;
         case rf_profile_bt_1:
-            rf_send_packet(&rf_packet_profile_bt_1, true);
+            rf_send_packet(&rf_packet_profile_bt_1, true, true);
             host_set_driver(&rf_host_driver);
-            rf_runtime_config.rf_connected = false;
             break;
         case rf_profile_bt_2:
-            rf_send_packet(&rf_packet_profile_bt_2, true);
+            rf_send_packet(&rf_packet_profile_bt_2, true, true);
             host_set_driver(&rf_host_driver);
-            rf_runtime_config.rf_connected = false;
             break;
         case rf_profile_bt_3:
-            rf_send_packet(&rf_packet_profile_bt_3, true);
+            rf_send_packet(&rf_packet_profile_bt_3, true, true);
             host_set_driver(&rf_host_driver);
-            rf_runtime_config.rf_connected = false;
             break;
         case rf_profile_wired:
-            rf_send_packet(&rf_packet_profile_wired, true);
+            rf_send_packet(&rf_packet_profile_wired, true, true);
             host_set_driver(usb_host_driver);
             break;
     }
@@ -292,14 +336,60 @@ void uart_receive_timeout(uint8_t *data, uint16_t length, uint8_t timeout) {
     sdReadTimeout(&UART_DRIVER, data, length, TIME_MS2I(timeout));
 }
 
-bool rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack) {
-    uart_transmit((uint8_t *)packet, sizeof(rf_packet_generic_3_byte_t));
-    return check_for_ack ? rf_uart_look_for_ack(2) : true;
+#define RF_RETRY_TIMEOUT 10
+#define RF_RETRY_OR_CLEAR_TIMEOUT 100
+
+void rf_retry_failed_packets(void) {
+    rf_packet_buffer_t potential_packet = {0};
+    if (rf_prb_get(&potential_packet)) {
+        dprintf("RF retrying packet: %x %x\n", potential_packet.data[0], potential_packet.data[1]);
+        uart_transmit((uint8_t *)potential_packet.data, potential_packet.length);
+        if (rf_uart_look_for_ack(2)) {
+            rf_prb_advance_get();
+        }
+    }
 }
 
-bool rf_send_data(uint8_t *data, uint8_t length, bool check_for_ack) {
+void rf_retry_before_send(void) {
+    rf_packet_buffer_t potential_packet = {0};
+    fast_timer_t       start            = timer_read_fast();
+    while (rf_prb_get(&potential_packet)) {
+        uart_transmit((uint8_t *)potential_packet.data, potential_packet.length);
+        if (rf_uart_look_for_ack(2)) {
+            start = timer_read_fast();
+            rf_prb_advance_get();
+        }
+        if (timer_elapsed_fast(start) > RF_RETRY_OR_CLEAR_TIMEOUT) {
+            rf_dprintf("RF Retry timeout, packets cleared\n");
+            rf_prb_clear();
+        }
+    }
+}
+
+bool rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack, bool retry) {
+    if (retry) {
+        rf_retry_before_send();
+    }
+    uart_transmit((uint8_t *)packet, sizeof(rf_packet_generic_3_byte_t));
+
+    bool okay = check_for_ack ? rf_uart_look_for_ack(2) : true;
+    if (!okay && retry) {
+        rf_prb_put((uint8_t *)packet, sizeof(rf_packet_generic_3_byte_t));
+    }
+
+    return okay;
+}
+
+bool rf_send_data(uint8_t *data, uint8_t length, bool check_for_ack, bool retry) {
+    if (retry) {
+        rf_retry_before_send();
+    }
     uart_transmit(data, length);
-    return check_for_ack ? rf_uart_look_for_ack(2) : true;
+    bool okay = check_for_ack ? rf_uart_look_for_ack(2) : true;
+    if (!okay && retry) {
+        rf_prb_put(data, length);
+    }
+    return okay;
 }
 
 bool rf_packet_is_ack(rf_packet_generic_3_byte_t *packet) {
@@ -329,7 +419,7 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
             case RF_ID_LED_STATE:
                 rf_dprintf("RF LED State Update\n");
                 rf_runtime_config.keyboard_leds_state = packet->data;
-                rf_send_packet(&rf_packet_ack, false);
+                rf_send_packet(&rf_packet_ack, false, false);
                 break;
             case RF_ID_STATUS:
                 if (packet->data != RF_STATUS_ALIVE) {
@@ -376,11 +466,11 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                 rf_runtime_config.battery_level = packet->data;
                 rf_dprintf("RF Battery Level: %d Charging: ", rf_runtime_config.battery_level);
                 rf_dprintf(rf_runtime_config.battery_charging ? "Yes\n" : "No\n");
-                rf_send_packet(&rf_packet_ack, false);
+                rf_send_packet(&rf_packet_ack, false, false);
                 break;
             default:
                 rf_dprintf("RF Valid Unhandled Packet: 0x%x 0x%x 0x%x\n", packet->cmd, packet->data, packet->checksum);
-                rf_send_packet(&rf_packet_ack, false);
+                rf_send_packet(&rf_packet_ack, false, false);
                 break;
         }
     } else if (packet->cmd == RF_ID_VIA) {
