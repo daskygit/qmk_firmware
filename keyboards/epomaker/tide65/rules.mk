@@ -2,7 +2,7 @@ UART_DRIVER_REQUIRED = yes
 
 WS2812_DRIVER = spi
 
-VPATH += keyboards/epomaker/tide65/wireless
+VPATH += keyboards/epomaker/common/rf8003a
 SRC += rf_driver.c
 SRC += rf_reports.c
 SRC += rf_packets.c
