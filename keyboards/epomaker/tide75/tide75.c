@@ -143,11 +143,11 @@ bool rgb_matrix_indicators_kb(void) {
         uint8_t red   = 99 - scale8(255, get_battery_level());
         uint8_t green = scale8(255, get_battery_level());
 
-        rgb_matrix_set_color(57, red, green, 0);
+        rgb_matrix_set_color(2, red, green, 0);
     }
 
     if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(8, 255, 255, 255);
+        rgb_matrix_set_color(54, 255, 255, 255);
     }
 
     return true;
