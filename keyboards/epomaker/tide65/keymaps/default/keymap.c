@@ -3,7 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
-#include "rf_driver.h"
+#include "rf8003a/rf_driver.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
