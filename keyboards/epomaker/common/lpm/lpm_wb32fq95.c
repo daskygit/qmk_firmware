@@ -8,6 +8,8 @@
 
 static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
 static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+static const pin_t encoder_pins_a[1]     = ENCODERS_PAD_A;
+static const pin_t encoder_pins_b[1]     = ENCODERS_PAD_B;
 
 void lpm_start(void) {
     uint32_t timer_before_lpm = timer_read32();
@@ -45,6 +47,12 @@ void lpm_start(void) {
     for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
         gpio_set_pin_input_high(row_pins[i]);
         palEnablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
+    }
+    for (int i = 0; i < ARRAY_SIZE(encoder_pins_a); ++i) {
+        gpio_set_pin_input_high(encoder_pins_a[i]);
+        gpio_set_pin_input_high(encoder_pins_b[i]);
+        palEnablePadEvent(PAL_PORT(encoder_pins_a[i]), PAL_PAD(encoder_pins_a[i]), PAL_EVENT_MODE_FALLING_EDGE);
+        palEnablePadEvent(PAL_PORT(encoder_pins_b[i]), PAL_PAD(encoder_pins_b[i]), PAL_EVENT_MODE_FALLING_EDGE);
     }
 
     // usb_disconnect(); // this causes increased power consumption during lpm
@@ -89,5 +97,11 @@ void lpm_start(void) {
     for (int i = 0; i < ARRAY_SIZE(col_pins); ++i) {
         gpio_write_pin_high(col_pins[i]);
         gpio_set_pin_input_high(col_pins[i]);
+    }
+    for (int i = 0; i < ARRAY_SIZE(encoder_pins_a); ++i) {
+        gpio_set_pin_input_high(encoder_pins_a[i]);
+        gpio_set_pin_input_high(encoder_pins_b[i]);
+        palDisablePadEvent(PAL_PORT(encoder_pins_a[i]), PAL_PAD(encoder_pins_a[i]));
+        palDisablePadEvent(PAL_PORT(encoder_pins_b[i]), PAL_PAD(encoder_pins_b[i]));
     }
 }
