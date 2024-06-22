@@ -8,6 +8,28 @@
 #include "debug.h"
 #include "print.h"
 
+typedef union {
+    uint32_t raw;
+    struct {
+        rf_profiles_t saved_mode : 3;
+    };
+} kb_eeconfig_t;
+
+kb_eeconfig_t kb_eeconfig;
+
+void eeconfig_init_kb(void) {
+    kb_eeconfig.raw        = 0;
+    kb_eeconfig.saved_mode = rf_profile_dongle;
+    eeconfig_update_kb(kb_eeconfig.raw);
+}
+
+void rf_profile_update_kb(rf_profiles_t profile) {
+    if (profile != kb_eeconfig.saved_mode) {
+        kb_eeconfig.saved_mode = profile;
+        eeconfig_update_kb(kb_eeconfig.raw);
+    }
+};
+
 void keyboard_pre_init_kb(void) {
     gpio_set_pin_output(RGB_POWER_PIN);
     gpio_write_pin_high(RGB_POWER_PIN);
@@ -16,7 +38,8 @@ void keyboard_pre_init_kb(void) {
 }
 
 void keyboard_post_init_kb(void) {
-    keyboard_post_init_rf();
+    kb_eeconfig.raw = eeconfig_read_kb();
+    keyboard_post_init_rf(kb_eeconfig.saved_mode);
     keyboard_post_init_user();
 }
 
@@ -25,8 +48,6 @@ void protocol_keyboard_task(void) {
     static bool idle = false;
     if (!is_rf_on()) {
         lpm_start();
-        rf_task();
-        matrix_scan();
     }
     if (last_input_activity_elapsed() > RGB_SLEEP_TIME_MS) {
         if (!idle) {

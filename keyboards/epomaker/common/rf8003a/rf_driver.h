@@ -37,7 +37,7 @@ typedef struct {
 } rf_config_t;
 
 void rf_task(void);
-void keyboard_post_init_rf(void);
+void keyboard_post_init_rf(rf_profiles_t profile);
 bool process_record_rf(uint16_t keycode, keyrecord_t *record);
 
 void rf_switch_profile(rf_profiles_t profile);

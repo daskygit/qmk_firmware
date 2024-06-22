@@ -20,9 +20,9 @@ rf_config_t rf_runtime_config = {
     .current_profile     = rf_profile_wired,
     .pairing             = false,
     .on                  = true,
-
 };
 
+rf_profiles_t  init_profile;
 deferred_token rf_maintainence_task_token;
 
 #define PRB_SIZE 8
@@ -95,7 +95,7 @@ uint8_t rf_get_leds(void) {
     return rf_runtime_config.keyboard_leds_state;
 }
 
-void keyboard_post_init_rf(void) {
+void keyboard_post_init_rf(rf_profiles_t profile) {
 #ifdef RF_DEBUG
     debug_enable = true;
 #endif
@@ -106,7 +106,7 @@ void keyboard_post_init_rf(void) {
     rf_packet_dongle_product.checksum      = rf_generate_checksum((uint8_t *)&rf_packet_dongle_product, sizeof(rf_packet_product_t) - 1);
     rf_packet_dongle_manufacturer.checksum = rf_generate_checksum((uint8_t *)&rf_packet_dongle_manufacturer, sizeof(rf_packet_dongle_manufacturer_t) - 1);
     rf_packet_vidpid.checksum              = rf_generate_checksum((uint8_t *)&rf_packet_vidpid, sizeof(rf_packet_vidpid_t) - 1);
-
+    init_profile                           = profile;
     wait_ms(200); // wait for RF MCU power up
     uart_init(115200);
 }
@@ -123,7 +123,7 @@ void rf_task(void) {
             okay = rf_send_packet(&rf_packet_init_c, true, false);
         }
         if (okay) {
-            rf_switch_profile(rf_profile_dongle);
+            rf_switch_profile(init_profile);
             rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
         }
         init_done = okay;
@@ -265,8 +265,10 @@ void rf_pair_dongle(void) {
     }
 }
 
+__attribute__((weak)) void rf_profile_update_kb(rf_profiles_t profile) {};
+
 void rf_switch_profile(rf_profiles_t profile) {
-    // if (rf_current_profile == profile) {
+    // if (rf_runtime_config.current_profile == profile) {
     //     return;
     // }
 
@@ -300,7 +302,10 @@ void rf_switch_profile(rf_profiles_t profile) {
             host_set_driver(usb_host_driver);
             break;
     }
-    rf_runtime_config.current_profile = profile;
+    if (rf_runtime_config.current_profile != profile) {
+        rf_runtime_config.current_profile = profile;
+        rf_profile_update_kb(profile);
+    }
 }
 
 bool rf_uart_look_for_ack(uint8_t packets_to_process) {
