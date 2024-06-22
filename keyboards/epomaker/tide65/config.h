@@ -36,3 +36,6 @@
 #define RF_SLEEP_TIME_MS 60000
 
 #define RGB_SLEEP_TIME_MS 30000
+
+#define CAPS_LOCK_LED 8
+#define FN_LED 57

@@ -57,19 +57,19 @@ bool rgb_matrix_indicators_kb(void) {
         uint8_t red   = 99 - scale8(255, get_battery_level());
         uint8_t green = scale8(255, get_battery_level());
 
-        rgb_matrix_set_color(57, red, green, 0);
+        rgb_matrix_set_color(FN_LED, red, green, 0);
     }
 
     if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(8, 255, 255, 255);
+        rgb_matrix_set_color(CAPS_LOCK_LED, 255, 255, 255);
     }
 
     return true;
 }
 
 void rf_status_update_kb(uint8_t status) {
-    if (status != 0x23) {
-        if (is_pairing()) {
+    if (status != 0x23 && get_current_profile() != rf_profile_wired) {
+        if (is_pairing() & !is_connected()) {
             rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
             rgb_matrix_sethsv_noeeprom(HSV_BLUE);
         } else if (!is_connected()) {
