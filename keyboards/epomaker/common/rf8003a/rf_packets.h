@@ -89,6 +89,7 @@ typedef enum {
     RF_SETTING_KEEP_ALIVE     = 0x53,
     RF_SETTING_INIT_A         = 0x55,
     RF_SETTING_INIT_B         = 0x57,
+    RF_SETTING_CLEAR_PAIRINGS = 0x62,
     RF_SETTING_INIT_C         = 0x70,
 } rf_setting_cmds_t;
 
@@ -107,6 +108,7 @@ const rf_packet_generic_3_byte_t rf_packet_keep_alive;
 const rf_packet_generic_3_byte_t rf_packet_via_in;
 const rf_packet_generic_3_byte_t rf_packet_cmd_pair_a;
 const rf_packet_generic_3_byte_t rf_packet_cmd_pair_b;
+const rf_packet_generic_3_byte_t rf_packet_clear_pairings;
 rf_packet_product_t              rf_packet_bt_product;
 rf_packet_product_t              rf_packet_dongle_product;
 rf_packet_dongle_manufacturer_t  rf_packet_dongle_manufacturer;

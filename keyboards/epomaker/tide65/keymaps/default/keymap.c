@@ -17,7 +17,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         ),
 
     [1] = LAYOUT( /* Base */
-        KC_GRV,   KC_F1,      KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,     KC_F11,   KC_F12,   _______,   _______,
+        KC_GRV,   KC_F1,      KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,     KC_F11,   KC_F12,   RF_PR_CLEAR,   _______,
         _______,  RF_BT1,     RF_BT2,   RF_BT3,   _______,  RF_WIRE,  _______,  _______,  _______,  _______,  RF_DONG,    KC_HOME,  KC_SCRL,  _______,   QK_BOOT,
         _______,  RF_PR_1,    RF_PR_2,  RF_PR_3,  _______,  _______,  _______,  _______,  _______,  _______,  RF_PR_D,    KC_PSCR,            _______,   QK_DEBUG_TOGGLE,
         _______,  _______,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,              _______,  RGB_VAI,   _______,

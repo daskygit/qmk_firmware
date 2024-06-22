@@ -166,6 +166,10 @@ void rf_task(void) {
     }
 }
 
+void rf_clear_pairings(void) {
+    rf_send_packet(&rf_packet_clear_pairings, true, false);
+}
+
 bool process_record_rf(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
@@ -199,6 +203,10 @@ bool process_record_rf(uint16_t keycode, keyrecord_t *record) {
             case RF_PR_D:
                 rf_switch_profile(rf_profile_dongle);
                 rf_pair_dongle();
+                return false;
+            case RF_PR_CLEAR:
+                rf_clear_pairings();
+                rf_switch_profile(rf_profile_wired);
                 return false;
         }
     }

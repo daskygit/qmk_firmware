@@ -13,6 +13,7 @@ enum {
     RF_PR_2,
     RF_PR_3,
     RF_PR_D,
+    RF_PR_CLEAR, // this clears all pairings including dongle
     RF_SAFE,
 } rf_keycodes;
 
