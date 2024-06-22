@@ -8,6 +8,12 @@
 #include "debug.h"
 #include "print.h"
 
+bool batt_check = false;
+
+enum {
+    BATT_CHECK = RF_SAFE,
+} kb_keycodes;
+
 typedef union {
     uint32_t raw;
     struct {
@@ -67,6 +73,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_user(keycode, record)) {
         return false;
     }
+    if (keycode == BATT_CHECK) {
+        batt_check = record->event.pressed;
+    }
     return process_record_rf(keycode, record);
 }
 
@@ -75,25 +84,33 @@ bool rgb_matrix_indicators_kb(void) {
         return false;
     }
     if (is_battery_charging()) {
-        uint8_t red, green = 0;
-        switch (get_battery_level()) {
-            case 0 ... 10:
-                red = 255;
-                break;
-            case 90 ... 100:
-                green = 255;
-                break;
-            default:
-                red   = 255 - scale8(255, get_battery_level());
-                green = scale8(255, get_battery_level());
-        }
+        uint8_t red   = (float)(100 - get_battery_level()) * 255 / 100;
+        uint8_t green = (float)get_battery_level() * 255 / 100;
         rgb_matrix_set_color(FN_LED, red, green, 0);
     }
-
     if (host_keyboard_led_state().caps_lock) {
         rgb_matrix_set_color(CAPS_LOCK_LED, 255, 255, 255);
     }
+    return true;
+}
 
+bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
+    if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
+        return false;
+    }
+    if (batt_check) {
+        uint8_t led_cutoff_x = (float)get_battery_level() * 224 / 100;
+        uprintf("CUTOFF: %d", led_cutoff_x);
+        RGB led_colour = hsv_to_rgb((HSV){130, 255, rgb_matrix_get_val()});
+        for (uint8_t i = led_min; i < led_max; i++) {
+            if (g_led_config.point[i].x <= led_cutoff_x) {
+                rgb_matrix_set_color(i, led_colour.r, led_colour.g, led_colour.b);
+            } else {
+                rgb_matrix_set_color(i, 0, 0, 0);
+            }
+        }
+        return false;
+    }
     return true;
 }
 

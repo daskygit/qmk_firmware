@@ -21,7 +21,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  RF_BT1,     RF_BT2,   RF_BT3,   _______,  RF_WIRE,  _______,  RF_BT4,  RF_BT5,  _______,  RF_DONG,    KC_HOME,  KC_SCRL,  _______,   QK_BOOT,
         _______,  RF_PR_1,    RF_PR_2,  RF_PR_3,  _______,  _______,  _______,  RF_PR_4,  RF_PR_5,  _______,  RF_PR_D,    KC_PSCR,            _______,   QK_DEBUG_TOGGLE,
         _______,  _______,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,              _______,  RGB_VAI,   _______,
-        _______,  GU_TOGG,    _______,  EE_CLR,   EE_CLR,   EE_CLR,   EE_CLR,                       _______,              _______,    _______,RGB_VAD,   _______
+        _______,  GU_TOGG,    _______,  EE_CLR,   EE_CLR,   EE_CLR,   EE_CLR,                       _______,              _______,    _______,RGB_VAD,   RF_SAFE
         )
 };
 
