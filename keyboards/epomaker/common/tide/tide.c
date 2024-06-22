@@ -75,9 +75,18 @@ bool rgb_matrix_indicators_kb(void) {
         return false;
     }
     if (is_battery_charging()) {
-        uint8_t red   = 255 - scale8(255, get_battery_level());
-        uint8_t green = scale8(255, get_battery_level());
-
+        uint8_t red, green = 0;
+        switch (get_battery_level()) {
+            case 0 ... 10:
+                red = 255;
+                break;
+            case 90 ... 100:
+                green = 255;
+                break;
+            default:
+                red   = 255 - scale8(255, get_battery_level());
+                green = scale8(255, get_battery_level());
+        }
         rgb_matrix_set_color(FN_LED, red, green, 0);
     }
 
