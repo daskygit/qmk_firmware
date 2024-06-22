@@ -111,6 +111,35 @@ void keyboard_post_init_rf(rf_profiles_t profile) {
     uart_init(115200);
 }
 
+void rf_wake_from_sleep(void) {
+    rf_runtime_config.on = true;
+    fast_timer_t bail    = timer_read_fast() + 1000;
+
+    switch (rf_runtime_config.current_profile) {
+        case rf_profile_dongle:
+            while (!rf_send_data((uint8_t *)&rf_packet_profile_dongle_2_4, sizeof(rf_packet_profile_dongle_2_4), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+                ;
+            break;
+        case rf_profile_bt_1:
+            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_1, sizeof(rf_packet_profile_bt_1), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+                ;
+            break;
+        case rf_profile_bt_2:
+            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_2, sizeof(rf_packet_profile_bt_2), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+                ;
+            break;
+        case rf_profile_bt_3:
+            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_3, sizeof(rf_packet_profile_bt_3), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+                ;
+            break;
+        case rf_profile_wired:
+            while (!rf_send_data((uint8_t *)&rf_packet_profile_wired, sizeof(rf_packet_profile_wired), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+                ;
+            break;
+    }
+    rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
+}
+
 void rf_task(void) {
     static bool init_done = false;
     if (!init_done) {
@@ -134,9 +163,7 @@ void rf_task(void) {
                 cancel_deferred_exec(rf_maintainence_task_token);
             }
         } else if (!rf_runtime_config.on) {
-            rf_runtime_config.on = true;
-            rf_switch_profile(rf_runtime_config.current_profile);
-            rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
+            rf_wake_from_sleep();
         } else {
             void rf_retry_failed_packets(void);
             rf_retry_failed_packets();
@@ -372,6 +399,9 @@ void rf_retry_before_send(void) {
 }
 
 bool rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack, bool retry) {
+    if (!rf_runtime_config.on) {
+        rf_wake_from_sleep();
+    }
     if (retry) {
         rf_retry_before_send();
     }
@@ -386,6 +416,9 @@ bool rf_send_packet(const rf_packet_generic_3_byte_t *packet, bool check_for_ack
 }
 
 bool rf_send_data(uint8_t *data, uint8_t length, bool check_for_ack, bool retry) {
+    if (!rf_runtime_config.on) {
+        rf_wake_from_sleep();
+    }
     if (retry) {
         rf_retry_before_send();
     }

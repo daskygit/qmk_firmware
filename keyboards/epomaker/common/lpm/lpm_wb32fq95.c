@@ -85,9 +85,6 @@ void lpm_start(void) {
     init_usb_driver(&USBD1);
     chSysUnlock();
 
-    void last_matrix_activity_trigger(void);
-    last_matrix_activity_trigger();
-
     // Now that the interrupt has woken us up, reset all the row / col pins back to defaults
     for (int i = 0; i < ARRAY_SIZE(row_pins); ++i) {
         palDisablePadEvent(PAL_PORT(row_pins[i]), PAL_PAD(row_pins[i]));
