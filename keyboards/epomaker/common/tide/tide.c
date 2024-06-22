@@ -116,7 +116,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 
 void rf_status_update_kb(uint8_t status) {
     if (status != 0x23 && get_current_profile() != rf_profile_wired) {
-        if (is_pairing() & !is_connected()) {
+        if (is_pairing()) {
             rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
             rgb_matrix_sethsv_noeeprom(HSV_BLUE);
         } else if (!is_connected()) {

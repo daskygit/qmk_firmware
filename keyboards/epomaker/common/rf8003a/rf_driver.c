@@ -85,7 +85,7 @@ const char *rf_status_to_string(rf_status_ids_t status) {
         case RF_STATUS_UNPAIRING:
             return "Unpairing";
         case RF_STATUS_UNKNOWN:
-            return "0x42";
+            return "0x2A";
         default:
             return "Undefined";
     }
@@ -235,7 +235,7 @@ uint32_t rf_maintainence_task(uint32_t trigger_time, void *cb_arg) {
     rf_runtime_config.battery_charging = !gpio_read_pin(CHARGING_STATUS_PIN);
     rf_runtime_config.vbus_detected    = gpio_read_pin(USB_VBUS_PIN);
 
-#ifdef RF_DEBUG
+#ifdef RF_DEBUG_STATUS
     rf_dprintf("RF Profile: ");
     switch (rf_runtime_config.current_profile) {
         case rf_profile_bt_1:
@@ -294,6 +294,8 @@ void rf_pair_bt(void) {
 
         if (timer_expired_fast(timer_read_fast(), bail)) {
             rf_dprintf("RF BT pairing sequence failed.\n");
+        } else {
+            rf_runtime_config.pairing = true;
         }
     }
 }
@@ -473,6 +475,7 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                 rf_send_packet(&rf_packet_ack, false, false);
                 break;
             case RF_ID_STATUS:
+                rf_send_packet(&rf_packet_ack, false, false);
                 if (packet->data != RF_STATUS_ALIVE) {
                     rf_runtime_config.last_status = packet->data;
                     rf_dprintf("RF Received Status: ");
@@ -484,7 +487,7 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                         // rf_dprintf(rf_status_to_string((rf_status_ids_t)packet->data));
                         break;
                     case RF_STATUS_PAIRING:
-                        rf_runtime_config.pairing = true;
+                        // rf_switch_profile(rf_runtime_config.current_profile);
                         break;
                     case RF_STATUS_CONNECTED:
                         rf_runtime_config.pairing      = false;
@@ -492,17 +495,18 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                         break;
                     case RF_STATUS_DISCONNECTED:
                         rf_runtime_config.rf_connected = false;
+                        // rf_switch_profile(rf_runtime_config.current_profile);
                         break;
                     case RF_STATUS_SWITCHING_PROFILE:
-                        rf_runtime_config.pairing = false;
                         break;
                     case RF_STATUS_NOT_CONNECTED:
                         rf_runtime_config.rf_connected = false;
+                        // rf_switch_profile(rf_runtime_config.current_profile);
                         break;
                     case RF_STATUS_NOT_PAIRED:
+                        //  rf_switch_profile(rf_runtime_config.current_profile);
                         break;
                     case RF_STATUS_UNPAIRING:
-                        rf_runtime_config.pairing = true;
                         break;
                     case RF_STATUS_UNKNOWN:
                         break;
@@ -510,13 +514,15 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
                         rf_dprintf("RF Unhandled Status: 0x%x\n", packet->data);
                         break;
                 }
-                rf_send_packet(&rf_packet_ack, false, false);
                 rf_status_update_kb(packet->data);
                 break;
             case RF_ID_BATTERY_LEVEL: // Battery Level
+
                 rf_runtime_config.battery_level = packet->data;
+#ifdef RF_DEBUG_BATTERY
                 rf_dprintf("RF Battery Level: %d Charging: ", rf_runtime_config.battery_level);
                 rf_dprintf(rf_runtime_config.battery_charging ? "Yes\n" : "No\n");
+#endif
                 rf_send_packet(&rf_packet_ack, false, false);
                 break;
             default:
