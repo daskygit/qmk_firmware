@@ -305,6 +305,8 @@ void rf_switch_profile(rf_profiles_t profile) {
     if (profile == rf_profile_wired) {
         host_set_driver(usb_host_driver);
     } else {
+        rf_runtime_config.keyboard_leds_state = 0;
+        rf_prb_clear();
         host_set_driver(&rf_host_driver);
     }
 
