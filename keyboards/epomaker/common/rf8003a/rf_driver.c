@@ -111,32 +111,26 @@ void keyboard_post_init_rf(rf_profiles_t profile) {
     uart_init(115200);
 }
 
+const rf_packet_generic_3_byte_t *rf_profile_to_packet(rf_profiles_t profile) {
+    switch (profile) {
+        case rf_profile_dongle:
+            return &rf_packet_profile_dongle_2_4;
+        case rf_profile_bt_1:
+            return &rf_packet_profile_bt_1;
+        case rf_profile_bt_2:
+            return &rf_packet_profile_bt_2;
+        case rf_profile_bt_3:
+            return &rf_packet_profile_bt_3;
+        default:
+            return &rf_packet_profile_wired;
+    }
+}
+
 void rf_wake_from_sleep(void) {
     rf_runtime_config.on = true;
     fast_timer_t bail    = timer_read_fast() + 1000;
-
-    switch (rf_runtime_config.current_profile) {
-        case rf_profile_dongle:
-            while (!rf_send_data((uint8_t *)&rf_packet_profile_dongle_2_4, sizeof(rf_packet_profile_dongle_2_4), true, false) && !timer_expired_fast(timer_read_fast(), bail))
-                ;
-            break;
-        case rf_profile_bt_1:
-            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_1, sizeof(rf_packet_profile_bt_1), true, false) && !timer_expired_fast(timer_read_fast(), bail))
-                ;
-            break;
-        case rf_profile_bt_2:
-            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_2, sizeof(rf_packet_profile_bt_2), true, false) && !timer_expired_fast(timer_read_fast(), bail))
-                ;
-            break;
-        case rf_profile_bt_3:
-            while (!rf_send_data((uint8_t *)&rf_packet_profile_bt_3, sizeof(rf_packet_profile_bt_3), true, false) && !timer_expired_fast(timer_read_fast(), bail))
-                ;
-            break;
-        case rf_profile_wired:
-            while (!rf_send_data((uint8_t *)&rf_packet_profile_wired, sizeof(rf_packet_profile_wired), true, false) && !timer_expired_fast(timer_read_fast(), bail))
-                ;
-            break;
-    }
+    while (!rf_send_packet(rf_profile_to_packet(rf_runtime_config.current_profile), true, false) && !timer_expired_fast(timer_read_fast(), bail))
+        ;
     rf_maintainence_task_token = defer_exec(RF_MAINTAINENCE_MS, rf_maintainence_task, NULL);
 }
 
@@ -307,28 +301,13 @@ void rf_switch_profile(rf_profiles_t profile) {
         usb_host_driver = host_get_driver();
     }
 
-    switch (profile) {
-        case rf_profile_dongle:
-            rf_send_packet(&rf_packet_profile_dongle_2_4, true, true);
-            host_set_driver(&rf_host_driver);
-            break;
-        case rf_profile_bt_1:
-            rf_send_packet(&rf_packet_profile_bt_1, true, true);
-            host_set_driver(&rf_host_driver);
-            break;
-        case rf_profile_bt_2:
-            rf_send_packet(&rf_packet_profile_bt_2, true, true);
-            host_set_driver(&rf_host_driver);
-            break;
-        case rf_profile_bt_3:
-            rf_send_packet(&rf_packet_profile_bt_3, true, true);
-            host_set_driver(&rf_host_driver);
-            break;
-        case rf_profile_wired:
-            rf_send_packet(&rf_packet_profile_wired, true, true);
-            host_set_driver(usb_host_driver);
-            break;
+    rf_send_packet(rf_profile_to_packet(profile), true, true);
+    if (profile == rf_profile_wired) {
+        host_set_driver(usb_host_driver);
+    } else {
+        host_set_driver(&rf_host_driver);
     }
+
     if (rf_runtime_config.current_profile != profile) {
         rf_runtime_config.current_profile = profile;
         rf_profile_update_kb(profile);
