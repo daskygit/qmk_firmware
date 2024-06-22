@@ -15,6 +15,8 @@ const rf_packet_generic_3_byte_t rf_packet_profile_dongle_2_4 = {RF_ID_SETTING, 
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_1       = {RF_ID_SETTING, RF_SETTING_PROFILE_BT_1, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PROFILE_BT_1)};
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_2       = {RF_ID_SETTING, RF_SETTING_PROFILE_BT_2, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PROFILE_BT_2)};
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_3       = {RF_ID_SETTING, RF_SETTING_PROFILE_BT_3, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PROFILE_BT_3)};
+const rf_packet_generic_3_byte_t rf_packet_profile_bt_4       = {RF_ID_SETTING, RF_SETTING_PROFILE_BT_4, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PROFILE_BT_4)};
+const rf_packet_generic_3_byte_t rf_packet_profile_bt_5       = {RF_ID_SETTING, RF_SETTING_PROFILE_BT_5, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PROFILE_BT_5)};
 const rf_packet_generic_3_byte_t rf_packet_clear_pairings     = {RF_ID_SETTING, RF_SETTING_CLEAR_PAIRINGS, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_CLEAR_PAIRINGS)};
 
 const rf_packet_generic_3_byte_t rf_packet_profile_wired = {RF_ID_SETTING, RF_SETTING_WIRED, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_WIRED)};

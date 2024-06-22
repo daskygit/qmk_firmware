@@ -121,6 +121,10 @@ const rf_packet_generic_3_byte_t *rf_profile_to_packet(rf_profiles_t profile) {
             return &rf_packet_profile_bt_2;
         case rf_profile_bt_3:
             return &rf_packet_profile_bt_3;
+        case rf_profile_bt_4:
+            return &rf_packet_profile_bt_4;
+        case rf_profile_bt_5:
+            return &rf_packet_profile_bt_5;
         default:
             return &rf_packet_profile_wired;
     }
@@ -182,6 +186,12 @@ bool process_record_rf(uint16_t keycode, keyrecord_t *record) {
             case RF_BT3:
                 rf_switch_profile(rf_profile_bt_3);
                 return false;
+            case RF_BT4:
+                rf_switch_profile(rf_profile_bt_4);
+                return false;
+            case RF_BT5:
+                rf_switch_profile(rf_profile_bt_5);
+                return false;
             case RF_DONG:
                 rf_switch_profile(rf_profile_dongle);
                 return false;
@@ -198,6 +208,14 @@ bool process_record_rf(uint16_t keycode, keyrecord_t *record) {
                 return false;
             case RF_PR_3:
                 rf_switch_profile(rf_profile_bt_3);
+                rf_pair_bt();
+                return false;
+            case RF_PR_4:
+                rf_switch_profile(rf_profile_bt_4);
+                rf_pair_bt();
+                return false;
+            case RF_PR_5:
+                rf_switch_profile(rf_profile_bt_5);
                 rf_pair_bt();
                 return false;
             case RF_PR_D:
@@ -228,6 +246,12 @@ uint32_t rf_maintainence_task(uint32_t trigger_time, void *cb_arg) {
             break;
         case rf_profile_bt_3:
             rf_dprintf("BT3 ");
+            break;
+        case rf_profile_bt_4:
+            rf_dprintf("BT4 ");
+            break;
+        case rf_profile_bt_5:
+            rf_dprintf("BT5 ");
             break;
         case rf_profile_dongle:
             rf_dprintf("Dongle ");

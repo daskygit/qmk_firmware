@@ -84,6 +84,8 @@ typedef enum {
     RF_SETTING_PROFILE_BT_1   = 0x31,
     RF_SETTING_PROFILE_BT_2   = 0x32,
     RF_SETTING_PROFILE_BT_3   = 0x33,
+    RF_SETTING_PROFILE_BT_4   = 0x34,
+    RF_SETTING_PROFILE_BT_5   = 0x35,
     RF_SETTING_PAIR_B         = 0x51,
     RF_SETTING_PAIR_A         = 0x52,
     RF_SETTING_KEEP_ALIVE     = 0x53,
@@ -103,6 +105,8 @@ const rf_packet_generic_3_byte_t rf_packet_profile_dongle_2_4;
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_1;
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_2;
 const rf_packet_generic_3_byte_t rf_packet_profile_bt_3;
+const rf_packet_generic_3_byte_t rf_packet_profile_bt_4;
+const rf_packet_generic_3_byte_t rf_packet_profile_bt_5;
 const rf_packet_generic_3_byte_t rf_packet_profile_wired;
 const rf_packet_generic_3_byte_t rf_packet_keep_alive;
 const rf_packet_generic_3_byte_t rf_packet_via_in;
