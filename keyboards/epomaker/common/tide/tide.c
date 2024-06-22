@@ -7,8 +7,7 @@
 #include "lib/lib8tion/lib8tion.h"
 #include "debug.h"
 #include "print.h"
-
-bool batt_check = false;
+#include "keymap_introspection.h"
 
 enum {
     BATT_CHECK = RF_SAFE,
@@ -22,6 +21,15 @@ typedef union {
 } kb_eeconfig_t;
 
 kb_eeconfig_t kb_eeconfig;
+
+bool         batt_check        = false;
+uint8_t      bt_1_led          = NO_LED;
+uint8_t      bt_2_led          = NO_LED;
+uint8_t      bt_3_led          = NO_LED;
+uint8_t      bt_4_led          = NO_LED;
+uint8_t      bt_5_led          = NO_LED;
+uint8_t      rf_led            = NO_LED;
+fast_timer_t bt_led_start_time = 0;
 
 void eeconfig_init_kb(void) {
     kb_eeconfig.raw        = 0;
@@ -43,9 +51,64 @@ void keyboard_pre_init_kb(void) {
     keyboard_pre_init_user();
 }
 
+uint8_t bt_led_location_from_profile(rf_profiles_t profile) {
+    switch (profile) {
+        case rf_profile_dongle:
+            return rf_led;
+        case rf_profile_bt_1:
+            return bt_1_led;
+        case rf_profile_bt_2:
+            return bt_2_led;
+        case rf_profile_bt_3:
+            return bt_3_led;
+        case rf_profile_bt_4:
+            return bt_4_led;
+        case rf_profile_bt_5:
+            return bt_5_led;
+        default:
+            return NO_LED;
+    }
+}
+
+void bt_led_locations_init(void) {
+    // uint8_t leds_found = 0;
+    for (uint8_t i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+        // if (leds_found == 6) {
+        //     break;
+        // }
+        for (uint8_t layer = 0; layer < keymap_layer_count(); layer++) {
+            for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+                for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+                    switch (keycode_at_keymap_location(layer, row, col)) {
+                        case RF_BT1:
+                            bt_1_led = g_led_config.matrix_co[row][col];
+                            break;
+                        case RF_BT2:
+                            bt_2_led = g_led_config.matrix_co[row][col];
+                            break;
+                        case RF_BT3:
+                            bt_3_led = g_led_config.matrix_co[row][col];
+                            break;
+                        case RF_BT4:
+                            bt_4_led = g_led_config.matrix_co[row][col];
+                            break;
+                        case RF_BT5:
+                            bt_5_led = g_led_config.matrix_co[row][col];
+                            break;
+                        case RF_DONG:
+                            rf_led = g_led_config.matrix_co[row][col];
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void keyboard_post_init_kb(void) {
     kb_eeconfig.raw = eeconfig_read_kb();
     keyboard_post_init_rf(kb_eeconfig.saved_mode);
+    bt_led_locations_init();
     keyboard_post_init_user();
 }
 
@@ -76,6 +139,25 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (keycode == BATT_CHECK) {
         batt_check = record->event.pressed;
     }
+    if (record->event.pressed) {
+        switch (keycode) {
+            case RF_BT1:
+            case RF_BT2:
+            case RF_BT3:
+            case RF_BT4:
+            case RF_BT5:
+            case RF_DONG:
+            case RF_WIRE:
+            case RF_PR_1:
+            case RF_PR_2:
+            case RF_PR_3:
+            case RF_PR_4:
+            case RF_PR_5:
+            case RF_PR_D:
+                bt_led_start_time = timer_read_fast();
+                break;
+        }
+    }
     return process_record_rf(keycode, record);
 }
 
@@ -90,6 +172,36 @@ bool rgb_matrix_indicators_kb(void) {
     }
     if (host_keyboard_led_state().caps_lock) {
         rgb_matrix_set_color(CAPS_LOCK_LED, 255, 255, 255);
+    }
+
+    uint8_t bt_led = bt_led_location_from_profile(get_current_profile());
+
+    if ((get_current_profile() != rf_profile_wired && bt_led != NO_LED)) {
+        static fast_timer_t led_timer = 0;
+        static bool         led_on    = false;
+
+        if (is_pairing()) {
+            if (timer_elapsed_fast(led_timer) > 250) {
+                led_timer = timer_read_fast();
+                led_on    = !led_on;
+            }
+            rgb_matrix_set_color(bt_led, 0, 0, led_on ? 255 : 0);
+
+        } else if (!is_connected()) {
+            if (timer_elapsed_fast(led_timer) > 700) {
+                led_timer = timer_read_fast();
+                led_on    = !led_on;
+            }
+            rgb_matrix_set_color(bt_led, 0, 0, led_on ? 255 : 0);
+        } else if (is_connected()) {
+            if (timer_elapsed_fast(bt_led_start_time) < 3100) {
+                if (timer_elapsed_fast(led_timer) > 700) {
+                    led_timer = timer_read_fast();
+                    led_on    = !led_on;
+                }
+                rgb_matrix_set_color(bt_led, 0, 0, led_on ? 255 : 0);
+            }
+        }
     }
     return true;
 }
@@ -114,16 +226,4 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 
-void rf_status_update_kb(uint8_t status) {
-    if (status != 0x23 && get_current_profile() != rf_profile_wired) {
-        if (is_pairing()) {
-            rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
-            rgb_matrix_sethsv_noeeprom(HSV_BLUE);
-        } else if (!is_connected()) {
-            rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
-            rgb_matrix_sethsv_noeeprom(HSV_ORANGE);
-        } else if (is_connected()) {
-            rgb_matrix_reload_from_eeprom();
-        }
-    }
-}
+void rf_status_update_kb(uint8_t status) {}
