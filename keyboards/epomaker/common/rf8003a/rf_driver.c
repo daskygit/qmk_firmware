@@ -366,12 +366,14 @@ bool rf_uart_look_for_ack(uint8_t packets_to_process) {
 
 #include "raw_hid.h"
 
+__attribute__((weak)) void raw_hid_receive(uint8_t *data, uint8_t length) {}
+
 void rf_handle_via(void) {
     uint8_t via_packet[36];
     via_packet[0] = rf_packet_via_in.cmd;
     via_packet[1] = rf_packet_via_in.data;
     via_packet[2] = rf_packet_via_in.checksum; // not actually checksum for via
-    uart_receive_timeout(&via_packet[3], 33, 2);
+    uart_receive_timeout(&via_packet[3], 33, 5);
     if (rf_packet_is_valid(via_packet, 36)) {
         // dprintf("VIA packet valid %d %d %d\n", via_packet[3], via_packet[4], via_packet[5]);
         rf_send_packet(&rf_packet_ack, false, false);

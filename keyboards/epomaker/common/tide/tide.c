@@ -227,3 +227,19 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 }
 
 void rf_status_update_kb(uint8_t status) {}
+
+#ifdef VIA_ENABLE
+#    include "usb_main.h"
+#    include "usb_descriptor.h"
+void replaced_hid_send(uint8_t *data, uint8_t length) {
+    if (length != RAW_EPSIZE) {
+        return;
+    }
+
+    if (get_current_profile() == rf_profile_wired) {
+        send_report(USB_ENDPOINT_IN_RAW, data, length);
+    } else if (get_current_profile() == rf_profile_dongle) {
+        rf_send_via(data, length);
+    }
+}
+#endif
