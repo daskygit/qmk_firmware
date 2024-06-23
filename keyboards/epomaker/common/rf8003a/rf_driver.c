@@ -364,16 +364,42 @@ bool rf_uart_look_for_ack(uint8_t packets_to_process) {
     return false;
 }
 
+#include "raw_hid.h"
+
 void rf_handle_via(void) {
     uint8_t via_packet[36];
     via_packet[0] = rf_packet_via_in.cmd;
     via_packet[1] = rf_packet_via_in.data;
     via_packet[2] = rf_packet_via_in.checksum; // not actually checksum for via
-    uart_receive_timeout(&via_packet[3], 33, 10);
+    uart_receive_timeout(&via_packet[3], 33, 2);
     if (rf_packet_is_valid(via_packet, 36)) {
+        // dprintf("VIA packet valid %d %d %d\n", via_packet[3], via_packet[4], via_packet[5]);
+        rf_send_packet(&rf_packet_ack, false, false);
+        raw_hid_receive(&via_packet[3], 32);
+    } else {
+        //     dprintf("VIA packet invalid");
     }
-    // do something with this
-    //
+}
+
+void rf_send_via(uint8_t *data, uint8_t length) {
+    uint32_t sum            = rf_packet_via_out.cmd + rf_packet_via_out.data + rf_packet_via_out.checksum;
+    uint8_t  via_packet[36] = {0};
+    via_packet[0]           = rf_packet_via_out.cmd;
+    via_packet[1]           = rf_packet_via_out.data;
+    via_packet[2]           = rf_packet_via_out.checksum; // not actually checksum for via
+    for (uint8_t i = 0; i < length; i++) {
+        via_packet[i + 3] = data[i];
+        sum += data[i];
+    }
+    via_packet[35] = sum & 0xff;
+
+    // via_packet[35] = rf_generate_checksum(via_packet, sizeof(via_packet) - 1);
+    //  if (rf_packet_is_valid(via_packet, 36)) {
+    //      dprintf("VIA send packet valid %d %d %d\n", via_packet[3], via_packet[4], via_packet[5]);
+    //  } else {
+    //      dprintf("VIA send packet invalid");
+    //  }
+    rf_send_data(via_packet, sizeof(via_packet), true, true);
 }
 
 uint8_t uart_read_timeout(uint8_t timeout) {

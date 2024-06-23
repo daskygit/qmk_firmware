@@ -22,8 +22,10 @@ const rf_packet_generic_3_byte_t rf_packet_clear_pairings     = {RF_ID_SETTING, 
 const rf_packet_generic_3_byte_t rf_packet_profile_wired = {RF_ID_SETTING, RF_SETTING_WIRED, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_WIRED)};
 const rf_packet_generic_3_byte_t rf_packet_keep_alive    = {RF_ID_SETTING, RF_SETTING_KEEP_ALIVE, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_KEEP_ALIVE)};
 const rf_packet_generic_3_byte_t rf_packet_via_in        = {RF_ID_VIA, 0x60, 0x20};
-const rf_packet_generic_3_byte_t rf_packet_cmd_pair_a    = {RF_ID_SETTING, RF_SETTING_PAIR_A, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PAIR_A)};
-const rf_packet_generic_3_byte_t rf_packet_cmd_pair_b    = {RF_ID_SETTING, RF_SETTING_PAIR_B, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PAIR_B)};
+const rf_packet_generic_3_byte_t rf_packet_via_out       = {RF_ID_VIA, 0x61, 0x20};
+
+const rf_packet_generic_3_byte_t rf_packet_cmd_pair_a = {RF_ID_SETTING, RF_SETTING_PAIR_A, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PAIR_A)};
+const rf_packet_generic_3_byte_t rf_packet_cmd_pair_b = {RF_ID_SETTING, RF_SETTING_PAIR_B, RF_PACKET_CHECKSUM(RF_ID_SETTING, RF_SETTING_PAIR_B)};
 
 rf_packet_product_t rf_packet_bt_product = {
     .cmd            = RF_ID_PRODUCT_BT,

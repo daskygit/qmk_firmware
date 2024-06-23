@@ -59,3 +59,4 @@ bool          is_connected(void);
 bool          is_usb_connected(void);
 rf_profiles_t get_current_profile(void);
 bool          is_rf_on(void);
+void          rf_send_via(uint8_t *data, uint8_t length);

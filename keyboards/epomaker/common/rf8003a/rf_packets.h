@@ -110,6 +110,7 @@ const rf_packet_generic_3_byte_t rf_packet_profile_bt_5;
 const rf_packet_generic_3_byte_t rf_packet_profile_wired;
 const rf_packet_generic_3_byte_t rf_packet_keep_alive;
 const rf_packet_generic_3_byte_t rf_packet_via_in;
+const rf_packet_generic_3_byte_t rf_packet_via_out;
 const rf_packet_generic_3_byte_t rf_packet_cmd_pair_a;
 const rf_packet_generic_3_byte_t rf_packet_cmd_pair_b;
 const rf_packet_generic_3_byte_t rf_packet_clear_pairings;
