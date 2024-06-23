@@ -63,7 +63,7 @@ typedef enum {
     RF_ID_STATUS              = 0x5B,
     RF_ID_BATTERY_LEVEL       = 0x5C,
     RF_ID_UNKNOWN_1           = 0x5D,
-    RF_ID_UNKNOWN_2           = 0x60, //  had 0x00 and 0x01 as data e.g. (0x60 0x01 0x61)
+    RF_ID_POWER               = 0x60, //  had 0x00 and 0x01 as data e.g. (0x60 0x01 0x61)
     RF_ID_ACK                 = 0x61,
     RF_ID_6KRO                = 0xA1,
     RF_ID_NKRO                = 0xA2,

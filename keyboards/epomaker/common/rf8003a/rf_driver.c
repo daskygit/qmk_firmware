@@ -8,6 +8,7 @@
 #include "rf_packets.h"
 #include "rf_reports.h"
 #include "rf_internal.h"
+#include "lpm/lpm.h"
 
 host_driver_t  rf_host_driver  = {rf_keyboard_leds, rf_send_keyboard, rf_send_nkro, rf_send_mouse, rf_send_extra};
 host_driver_t *usb_host_driver = NULL;
@@ -525,6 +526,17 @@ void rf_handle_packet(rf_packet_generic_3_byte_t *packet) {
 #endif
                 rf_send_packet(&rf_packet_ack, false, false);
                 break;
+            case RF_ID_POWER:
+                rf_send_packet(&rf_packet_ack, false, false);
+                if (packet->data == 0x00) {
+                    gpio_write_pin_low(RGB_POWER_PIN);
+                    lpm_start();
+                    gpio_write_pin_high(RGB_POWER_PIN);
+                } else {
+                    // 0x01 - does ??
+                }
+                break;
+
             default:
                 rf_dprintf("RF Valid Unhandled Packet: 0x%x 0x%x 0x%x\n", packet->cmd, packet->data, packet->checksum);
                 rf_send_packet(&rf_packet_ack, false, false);
