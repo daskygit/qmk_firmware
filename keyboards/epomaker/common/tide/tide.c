@@ -130,6 +130,7 @@ void protocol_keyboard_task(void) {
         rgb_matrix_enable_noeeprom();
     }
     keyboard_task();
+    __WFI();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
