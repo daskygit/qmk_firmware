@@ -30,32 +30,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // If your PC does not recognize Keyball, try setting this macro. This macro
 // increases the firmware size by 200 bytes, so it is disabled by default, but
 // it has been reported to work well in such cases.
-//#define SPLIT_WATCHDOG_ENABLE
+// #define SPLIT_WATCHDOG_ENABLE
 
 // PMW3360 configuration
 #define PMW33XX_CS_PIN B6
 
-#define SPLIT_TRANSACTION_IDS_KB KEYBALL_GET_INFO, KEYBALL_GET_MOTION, KEYBALL_SET_CPI
+#define SPLIT_POINTING_ENABLE
+#define POINTING_DEVICE_RIGHT
+#define POINTING_DEVICE_TASK_THROTTLE_MS KEYBALL_REPORTMOUSE_INTERVAL
+
+#define SPLIT_TRANSACTION_IDS_KB KEYBALL_GET_INFO
 
 // RGB LED settings
 #ifdef RGBLIGHT_ENABLE
-#    define RGBLED_NUM      48
-#    define RGBLED_SPLIT    { 24, 24 }  // (24 + 22)
+#    define RGBLED_NUM 48
+#    define RGBLED_SPLIT \
+        { 24, 24 } // (24 + 22)
 #    ifndef RGBLIGHT_LIMIT_VAL
-#        define RGBLIGHT_LIMIT_VAL  150 // limitated for power consumption
+#        define RGBLIGHT_LIMIT_VAL 150 // limitated for power consumption
 #    endif
 #    ifndef RGBLIGHT_VAL_STEP
-#        define RGBLIGHT_VAL_STEP   15
+#        define RGBLIGHT_VAL_STEP 15
 #    endif
 #    ifndef RGBLIGHT_HUE_STEP
-#        define RGBLIGHT_HUE_STEP   17
+#        define RGBLIGHT_HUE_STEP 17
 #    endif
 #    ifndef RGBLIGHT_SAT_STEP
-#        define RGBLIGHT_SAT_STEP   17
+#        define RGBLIGHT_SAT_STEP 17
 #    endif
 #endif
 #ifdef RGB_MATRIX_ENABLE
-#    define RGB_MATRIX_SPLIT    { 24, 24 }
+#    define RGB_MATRIX_SPLIT \
+        { 24, 24 }
 #endif
 
 #ifndef OLED_FONT_H

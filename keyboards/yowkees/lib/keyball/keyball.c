@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string.h>
 
-const uint8_t CPI_DEFAULT    = KEYBALL_CPI_DEFAULT / 100;
+const uint8_t CPI_DEFAULT = KEYBALL_CPI_DEFAULT / 100;
 /**
  * The Keyball library uses a range of 0 <= cpi <= 119 internally, and the true
  * CPI value is ( cpi + 1 ) * 100.
@@ -34,10 +34,10 @@ const uint8_t SCROLL_DIV_MAX = 7;
 
 const uint16_t AML_TIMEOUT_MIN = 100;
 const uint16_t AML_TIMEOUT_MAX = 1000;
-const uint16_t AML_TIMEOUT_QU  = 50;   // Quantization Unit
+const uint16_t AML_TIMEOUT_QU  = 50; // Quantization Unit
 
-static const char BL = '\xB0'; // Blank indicator character
-static const char LFSTR_ON[] PROGMEM = "\xB2\xB3";
+static const char BL                  = '\xB0'; // Blank indicator character
+static const char LFSTR_ON[] PROGMEM  = "\xB2\xB3";
 static const char LFSTR_OFF[] PROGMEM = "\xB4\xB5";
 
 keyball_t keyball = {
@@ -45,16 +45,13 @@ keyball_t keyball = {
     .that_enable    = false,
     .that_have_ball = false,
 
-    .this_motion = {0},
-    .that_motion = {0},
-
     .cpi_value   = 0,
     .cpi_changed = false,
 
     .scroll_mode = false,
     .scroll_div  = 0,
 
-    .pressing_keys = { '\xB0', '\xB0', '\xB0', '\xB0', '\xB0', '\xB0', 0 },
+    .pressing_keys = {'\xB0', '\xB0', '\xB0', '\xB0', '\xB0', '\xB0', 0},
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -64,17 +61,6 @@ __attribute__((weak)) void keyball_on_adjust_layout(keyball_adjust_t v) {}
 
 //////////////////////////////////////////////////////////////////////////////
 // Static utilities
-
-// add16 adds two int16_t with clipping.
-static int16_t add16(int16_t a, int16_t b) {
-    int16_t r = a + b;
-    if (a >= 0 && b >= 0 && r < 0) {
-        r = 32767;
-    } else if (a < 0 && b < 0 && r >= 0) {
-        r = -32768;
-    }
-    return r;
-}
 
 // divmod16 divides *v by div, returns the quotient, and assigns the remainder
 // to *v.
@@ -138,7 +124,7 @@ static void add_scroll_div(int8_t delta) {
 
 #if KEYBALL_MODEL == 46
 void keyboard_pre_init_kb(void) {
-    keyball.this_have_ball = pmw3360_init();
+    keyball.this_have_ball = pmw33xx_init();
     keyboard_pre_init_user();
 }
 #endif
@@ -165,8 +151,8 @@ __attribute__((weak)) void keyball_on_apply_motion_to_mouse_move(keyball_motion_
 __attribute__((weak)) void keyball_on_apply_motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
     // consume motion of trackball.
     int16_t div = 1 << (keyball_get_scroll_div() - 1);
-    int16_t x = divmod16(&m->x, div);
-    int16_t y = divmod16(&m->y, div);
+    int16_t x   = divmod16(&m->x, div);
+    int16_t y   = divmod16(&m->y, div);
 
     // apply to mouse report.
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
@@ -212,25 +198,19 @@ __attribute__((weak)) void keyball_on_apply_motion_to_mouse_scroll(keyball_motio
 #endif
 }
 
-static inline bool should_report(void) {
+__attribute__((weak)) report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     uint32_t now = timer_read32();
-#if defined(KEYBALL_REPORTMOUSE_INTERVAL) && KEYBALL_REPORTMOUSE_INTERVAL > 0
-    // throttling mouse report rate.
-    static uint32_t last = 0;
-    if (TIMER_DIFF_32(now, last) < KEYBALL_REPORTMOUSE_INTERVAL) {
-        return false;
-    }
-    last = now;
-#endif
 #if defined(KEYBALL_SCROLLBALL_INHIVITOR) && KEYBALL_SCROLLBALL_INHIVITOR > 0
     if (TIMER_DIFF_32(now, keyball.scroll_mode_changed) < KEYBALL_SCROLLBALL_INHIVITOR) {
-        keyball.this_motion.x = 0;
-        keyball.this_motion.y = 0;
-        keyball.that_motion.x = 0;
-        keyball.that_motion.y = 0;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
     }
 #endif
-    return true;
+    keyball.last_mouse.x = mouse_report.x;
+    keyball.last_mouse.y = mouse_report.y;
+    keyball.last_mouse.h = mouse_report.h;
+    keyball.last_mouse.v = mouse_report.v;
+    return pointing_device_task_user(mouse_report);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -283,43 +263,6 @@ static void rpc_get_info_invoke(void) {
     keyball_on_adjust_layout(KEYBALL_ADJUST_PRIMARY);
 }
 
-static void rpc_get_motion_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
-    *(keyball_motion_t *)out_data = keyball.this_motion;
-    // clear motion
-    keyball.this_motion.x = 0;
-    keyball.this_motion.y = 0;
-}
-
-static void rpc_get_motion_invoke(void) {
-    static uint32_t last_sync = 0;
-    uint32_t        now       = timer_read32();
-    if (TIMER_DIFF_32(now, last_sync) < KEYBALL_TX_GETMOTION_INTERVAL) {
-        return;
-    }
-    keyball_motion_t recv = {0};
-    if (transaction_rpc_exec(KEYBALL_GET_MOTION, 0, NULL, sizeof(recv), &recv)) {
-        keyball.that_motion.x = add16(keyball.that_motion.x, recv.x);
-        keyball.that_motion.y = add16(keyball.that_motion.y, recv.y);
-    }
-    last_sync = now;
-    return;
-}
-
-static void rpc_set_cpi_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
-    keyball_set_cpi(*(keyball_cpi_t *)in_data);
-}
-
-static void rpc_set_cpi_invoke(void) {
-    if (!keyball.cpi_changed) {
-        return;
-    }
-    keyball_cpi_t req = keyball.cpi_value;
-    if (!transaction_rpc_send(KEYBALL_SET_CPI, sizeof(req), &req)) {
-        return;
-    }
-    keyball.cpi_changed = false;
-}
-
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -359,7 +302,7 @@ void keyball_oled_render_ballinfo(void) {
     oled_write_P(PSTR("00 "), false);
 
     // indicate scroll snap mode: "VT" (vertical), "HN" (horiozntal), and "SCR" (free)
-#if 1 && KEYBALL_SCROLLSNAP_ENABLE == 2
+#    if 1 && KEYBALL_SCROLLSNAP_ENABLE == 2
     switch (keyball_get_scrollsnap_mode()) {
         case KEYBALL_SCROLLSNAP_MODE_VERTICAL:
             oled_write_P(PSTR("VT"), false);
@@ -371,9 +314,9 @@ void keyball_oled_render_ballinfo(void) {
             oled_write_P(PSTR("\xBE\xBF"), false);
             break;
     }
-#else
+#    else
     oled_write_P(PSTR("\xBE\xBF"), false);
-#endif
+#    endif
     // indicate scroll mode: on/off
     if (keyball.scroll_mode) {
         oled_write_P(LFSTR_ON, false);
@@ -513,7 +456,7 @@ void keyball_set_cpi(uint8_t cpi) {
          * QMK's core driver also caps the range internally to a valid CPI
          * value, so we don't need to do it here.
          */
-        pmw33xx_set_cpi(0, (cpi + 1) * 100);
+        pointing_device_set_cpi((cpi + 1) * 100);
     }
 }
 
@@ -525,8 +468,6 @@ void keyboard_post_init_kb(void) {
     // register transaction handlers on secondary.
     if (!is_keyboard_master()) {
         transaction_register_rpc(KEYBALL_GET_INFO, rpc_get_info_handler);
-        transaction_register_rpc(KEYBALL_GET_MOTION, rpc_get_motion_handler);
-        transaction_register_rpc(KEYBALL_SET_CPI, rpc_set_cpi_handler);
     }
 #endif
 
@@ -552,10 +493,6 @@ void keyboard_post_init_kb(void) {
 void housekeeping_task_kb(void) {
     if (is_keyboard_master()) {
         rpc_get_info_invoke();
-        if (keyball.that_have_ball) {
-            rpc_get_motion_invoke();
-            rpc_set_cpi_invoke();
-        }
     }
 }
 #endif
@@ -581,7 +518,7 @@ static void pressing_keys_update(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
-bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record) {
+bool is_mouse_record_kb(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case SCRL_MO:
             return true;
@@ -638,8 +575,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 break;
             case KBC_SAVE: {
                 keyball_config_t c = {
-                    .cpi   = keyball.cpi_value,
-                    .sdiv  = keyball.scroll_div,
+                    .cpi  = keyball.cpi_value,
+                    .sdiv = keyball.scroll_div,
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
                     .amle  = get_auto_mouse_enable(),
                     .amlto = (get_auto_mouse_timeout() / AML_TIMEOUT_QU) - 1,
@@ -690,18 +627,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             case AML_TO:
                 set_auto_mouse_enable(!get_auto_mouse_enable());
                 break;
-            case AML_I50:
-                {
-                    uint16_t v = get_auto_mouse_timeout() + 50;
-                    set_auto_mouse_timeout(MIN(v, AML_TIMEOUT_MAX));
-                }
-                break;
-            case AML_D50:
-                {
-                    uint16_t v = get_auto_mouse_timeout() - 50;
-                    set_auto_mouse_timeout(MAX(v, AML_TIMEOUT_MIN));
-                }
-                break;
+            case AML_I50: {
+                uint16_t v = get_auto_mouse_timeout() + 50;
+                set_auto_mouse_timeout(MIN(v, AML_TIMEOUT_MAX));
+            } break;
+            case AML_D50: {
+                uint16_t v = get_auto_mouse_timeout() - 50;
+                set_auto_mouse_timeout(MAX(v, AML_TIMEOUT_MIN));
+            } break;
 #endif
 
             default:
