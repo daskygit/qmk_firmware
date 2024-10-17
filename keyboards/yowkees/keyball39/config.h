@@ -37,9 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPLIT_POINTING_ENABLE
 #define POINTING_DEVICE_RIGHT
-#define POINTING_DEVICE_TASK_THROTTLE_MS KEYBALL_REPORTMOUSE_INTERVAL
-
-#define SPLIT_TRANSACTION_IDS_KB KEYBALL_GET_INFO
+#define POINTING_DEVICE_TASK_THROTTLE_MS 8 // not technically required but will likely help with scan rate on atmega
 
 // RGB LED settings
 #ifdef RGBLIGHT_ENABLE
@@ -62,12 +60,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef RGB_MATRIX_ENABLE
 #    define RGB_MATRIX_SPLIT \
         { 24, 24 }
-#endif
-
-#ifndef OLED_FONT_H
-#    define OLED_FONT_H "../lib/logofont/logofont.c"
-#    define OLED_FONT_START 32
-#    define OLED_FONT_END 195
 #endif
 
 #if !defined(LAYER_STATE_8BIT) && !defined(LAYER_STATE_16BIT) && !defined(LAYER_STATE_32BIT)
