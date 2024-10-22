@@ -127,6 +127,8 @@ void keyboard_post_init_kb(void) {
 #endif
 
     keyboard_post_init_user();
+
+    start_hsv = rgb_matrix_get_hsv();
 }
 
 #ifdef WIRELESS_ENABLE
