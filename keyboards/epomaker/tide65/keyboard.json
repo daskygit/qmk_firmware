@@ -6,7 +6,11 @@
     "bootmagic": {
         "matrix": [0, 0]
     },
-    "debounce": 1,
+    "build": {
+        "debounce_type": "asym_eager_defer_pk",
+        "lto": true
+    },
+    "debounce": 10,
     "diode_direction": "ROW2COL",
     "eeprom": {
         "driver": "wear_leveling",
@@ -21,6 +25,7 @@
         ]
     },
     "features": {
+        "bootmagic": true,
         "command": false,
         "console": false,
         "extrakey": true,
