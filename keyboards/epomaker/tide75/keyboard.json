@@ -13,7 +13,7 @@
     "eeprom": {
         "driver": "wear_leveling",
         "wear_leveling": {
-            "backing_size": 4096,
+            "backing_size": 8192,
             "driver": "spi_flash"
         }
     },
@@ -34,9 +34,6 @@
     },
     "keycodes": [
         {
-            "key": "KC_USB"
-        },
-        {
             "key": "KC_BT1"
         },
         {
@@ -46,19 +43,16 @@
             "key": "KC_BT3"
         },
         {
-            "key": "KC_BT4"
-        },
-        {
-            "key": "KC_BT5"
-        },
-        {
             "key": "KC_2G4"
         },
         {
-            "key": "KC_BATQ"
+            "key": "KC_USB"
         },
         {
-            "key": "KC_FTOG"
+            "key": "HS_BATQ"
+        },
+        {
+            "key": "KC_W_T"
         }
     ],
     "dynamic_keymap": {
@@ -222,7 +216,7 @@
         "device_version": "0.3.0",
         "force_nkro": true,
         "no_startup_check": true,
-        "pid": "0xE452",
+        "pid": "0xE471",
         "suspend_wakeup_delay": 1000,
         "vid": "0x342D"
     },
@@ -231,7 +225,7 @@
         "pin": "B15"
     },
     "layouts": {
-        "LAYOUT_ortho_6x15": {
+        "LAYOUT": {
             "layout": [
                 {"matrix": [0, 0], "x": 0, "y": 0},
                 {"matrix": [0, 1], "x": 1.5, "y": 0},

@@ -3,10 +3,6 @@
 
 #pragma once
 
-#ifdef WIRELESS_ENABLE
-#    define LPWR_TIMEOUT RGB_MATRIX_TIMEOUT
-#endif
-
 #define USB_POWER_EN_PIN B1 // USB ENABLE pin
 #define LED_POWER_EN_PIN A5 // LED ENABLE pin
 #define HS_BAT_CABLE_PIN A7 // USB insertion detection pin
@@ -20,8 +16,12 @@
 
 #define HS_RGB_INDICATOR_COUNT WS2812_LED_COUNT
 #define HS_RGB_BAT_COUNT 1
-#define RGB_MATRIX_BAT_INDEX_MAP \
-    { 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 }
+
+/* Device Name Definition */
+#define MD_BT1_NAME "EPOMAKER TID75"
+#define MD_BT2_NAME "EPOMAKER TIDE75"
+#define MD_BT3_NAME "EPOMAKER TIDE75"
+#define MD_DONGLE_MANUFACTURER "EPOMAKER TIDE 75"
 
 /* Device Connection RGB Indicator Light Index And Color */
 #define HS_RGB_BLINK_INDEX_BT1 52
@@ -34,12 +34,20 @@
 #define HS_LBACK_COLOR_BT2 RGB_BLUE
 #define HS_LBACK_COLOR_BT3 RGB_BLUE
 #define HS_LBACK_COLOR_2G4 RGB_GREEN
-#define HS_LBACK_COLOR_UBS RGB_WHITE
+#define HS_LBACK_COLOR_USB RGB_WHITE
 
 #define HS_PAIR_COLOR_BT1 RGB_BLUE
 #define HS_PAIR_COLOR_BT2 RGB_BLUE
 #define HS_PAIR_COLOR_BT3 RGB_BLUE
 #define HS_PAIR_COLOR_2G4 RGB_GREEN
+
+#define WIITE_B 0X6e
+
+/* Battery */
+#define BATTERY_CAPACITY_LOW 15
+#define BATTERY_CAPACITY_STOP 0
+#define RGB_MATRIX_BAT_INDEX_MAP \
+    { 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 }
 
 /* Status Indicator Lamp */
 #define HS_MATRIX_BLINK_INDEX_BAT 2
@@ -50,6 +58,16 @@
 #define HS_RGB_BLINK_INDEX_SPI 6
 #define HS_RGB_BLINK_INDEX_SPD 4
 
+#define RGB_MATRIX_BAT_VAL 150
+
+#define IM_BAT_REQ_LEVEL1_VAL 50
+#define IM_BAT_REQ_LEVEL1_COLOR 0x00, RGB_MATRIX_BAT_VAL, 0x00
+
+#define IM_BAT_REQ_LEVEL2_VAL 30
+#define IM_BAT_REQ_LEVEL2_COLOR 0x00, RGB_MATRIX_BAT_VAL, 0x00
+
+#define IM_BAT_REQ_LEVEL3_COLOR RGB_MATRIX_BAT_VAL, 0x00, 0x00
+
 /* UART */
 #define SERIAL_DRIVER SD3
 #define SD1_TX_PIN C10
@@ -57,6 +75,7 @@
 
 /* Encoder */
 #define ENCODER_MAP_KEY_DELAY 1
+#define ENCODER_RESOLUTION 2
 
 /* SPI */
 #define SPI_DRIVER SPIDQ
