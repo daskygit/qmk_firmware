@@ -14,4 +14,3 @@ SRC += display/pixellari_24.c
 SRC += display/pixellari_18.c
 SRC += display/pixellari_14.c
 
-SERIAL_DRIVER = vendor
