@@ -114,23 +114,26 @@ void processes_command(uint8_t *data, uint8_t length) {
             lv_label_set_text_fmt(label_track, "%s", string);
             uprintf("Now Playing: %s\n", string);
             break;
-        case _IMAGE:
+        case _IMAGE: {
             uint16_t x = ((uint16_t)data[4] << 8) | data[5];
             uprintf("Image %d %d %hu %d\n", data[4], data[5], x, data[6]);
             memcpy(&lv_mb_map[x * 25], &data[7], data[6]);
             break;
-        case _IMG_FS:
+        }
+        case _IMG_FS: {
             uprintf("Image FS\n");
             uint16_t y = ((uint16_t)data[4] << 8) | data[5];
             uprintf("Image %d %d %hu %d\n", data[4], data[5], y, data[6]);
             memcpy(&lv_scr[(y * 25)], &data[7], data[6]);
             break;
-        case _IMG_GIF:
+        }
+        case _IMG_GIF: {
             uprintf("Image GIF\n");
             uint16_t z = ((uint16_t)data[4] << 8) | data[5];
             uprintf("GIF %d %d %hu %d\n", data[4], data[5], z, data[6]);
             memcpy(&ezgif_map[(z * 25)], &data[7], data[6]);
             break;
+        }
         case _STATUS:
             uprintf("staus: %d\n", data[4]);
             switch (data[4]) {
