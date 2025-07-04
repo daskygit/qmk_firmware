@@ -50,8 +50,6 @@ void display_init(void) {
 
     if (!qp_lvgl_attach(lcd)) return;
 
-    init_styles();
-
     lv_obj_clean(lv_scr_act());
 
     wpm_layer_display_init();

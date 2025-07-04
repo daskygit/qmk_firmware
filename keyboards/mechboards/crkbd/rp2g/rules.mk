@@ -6,4 +6,3 @@ WPM_ENABLE = yes
 
 SRC += display/display.c
 SRC += display/screens.c
-SRC += display/styles.c
