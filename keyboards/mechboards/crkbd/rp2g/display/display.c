@@ -48,12 +48,16 @@ void display_housekeeping_task(void) {
         if (currwpm == lastwpm) {
             count++;
             if (count < vals) {
-                lv_chart_set_next_value(chart, ser, currwpm);
+                if (master) { // Disable chart on slave side while bug is resolved.
+                    lv_chart_set_next_value(chart, ser, currwpm);
+                }
             }
         } else {
             count = 0;
             lv_label_set_text_fmt(label_wpm, "WPM:%d", currwpm);
-            lv_chart_set_next_value(chart, ser, currwpm);
+            if (master) { // Disable chart on slave side while bug is resolved.
+                lv_chart_set_next_value(chart, ser, currwpm);
+            }
         }
         updating_wpm = false;
     }
