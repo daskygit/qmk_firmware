@@ -19,8 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "qp.h"
 #include "qp_comms.h"
-#include "qp_st77xx_opcodes.h"
-#include "gfx/mb.qgf.h"
 #include "qp_lvgl.h"
 #include "printf.h"
 #include "display/display.h"
