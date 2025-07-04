@@ -6,14 +6,15 @@
 #include "qp_lvgl.h"
 #include "printf.h"
 #include "transactions.h"
-#include "screens.h"
-#include "styles.h"
 
 painter_device_t lcd;
 
 bool    master;
 int     timer        = 0;
 int     count        = 0;
+
+lv_obj_t          *chart;
+lv_chart_series_t *ser;
 
 void display_housekeeping_task(void) {
     if (timer_elapsed(timer) > 1000) {
@@ -26,6 +27,17 @@ void display_housekeeping_task(void) {
 // This function is called when the master sends data to the slave, which is then processed with processes_command
 void screen_sync_slave_handler(uint8_t length, const void *in_data, uint8_t out_buflen, void *out_data) {
 
+}
+
+void wpm_layer_display_init(void) {
+    chart = lv_chart_create(lv_scr_act());
+    lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
+    lv_chart_set_point_count(chart, 20);
+    lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 150);
+    lv_obj_set_size(chart, 80, 40);
+    lv_obj_align(chart, LV_ALIGN_CENTER, 0, 40);
+
+    ser = lv_chart_add_series(chart, lv_color_hex(0x30b1b6), LV_CHART_AXIS_PRIMARY_Y);
 }
 
 void display_init(void) {

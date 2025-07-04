@@ -5,4 +5,3 @@ CONSOLE_ENABLE = yes
 WPM_ENABLE = yes
 
 SRC += display/display.c
-SRC += display/screens.c
