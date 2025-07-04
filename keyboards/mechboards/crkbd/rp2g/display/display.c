@@ -18,6 +18,7 @@ int     count        = 0;
 void display_housekeeping_task(void) {
     if (timer_elapsed(timer) > 1000) {
         timer = timer_read();
+        // lv_chart_set_next_value(chart, ser, get_current_wpm());
         lv_chart_set_next_value(chart, ser, 15);
     }
 }
@@ -53,9 +54,5 @@ void display_init(void) {
 
     lv_obj_clean(lv_scr_act());
 
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), LV_PART_MAIN);
-
     wpm_layer_display_init();
-
-    img_scr = lv_img_create(lv_scr_act());
 }

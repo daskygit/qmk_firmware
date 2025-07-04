@@ -5,9 +5,7 @@
 #include "transactions.h"
 
 lv_obj_t          *chart;
-lv_obj_t          *img_scr;
 lv_chart_series_t *ser;
-
 
 int                vals       = 20;
 
