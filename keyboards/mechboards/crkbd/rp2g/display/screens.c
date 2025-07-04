@@ -8,18 +8,6 @@ lv_obj_t          *chart;
 lv_obj_t          *img_scr;
 lv_chart_series_t *ser;
 
-// Settings for full size screen image
-LV_ATTRIBUTE_MEM_ALIGN uint8_t lv_scr[25604];
-
-lv_img_dsc_t scr = {
-    .header.cf          = LV_IMG_CF_TRUE_COLOR,
-    .header.always_zero = 0,
-    .header.reserved    = 0,
-    .header.w           = 80,
-    .header.h           = 160,
-    .data_size          = 25604,
-    .data               = lv_scr,
-};
 
 int                vals       = 20;
 

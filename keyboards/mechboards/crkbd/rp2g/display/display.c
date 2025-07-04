@@ -51,13 +51,6 @@ void display_init(void) {
 
     init_styles();
 
-    if (master)
-        draw_screen(0);
-    else
-        draw_screen(0);
-}
-
-void draw_screen(uint8_t screen) {
     lv_obj_clean(lv_scr_act());
 
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), LV_PART_MAIN);
