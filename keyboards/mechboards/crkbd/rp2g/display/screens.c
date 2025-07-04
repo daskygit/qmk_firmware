@@ -16,15 +16,8 @@ void wpm_layer_display_init(void) {
     lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
     lv_chart_set_point_count(chart, vals);
     lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 150);
-    lv_obj_set_style_pad_column(chart, 0.1, 0);
     lv_obj_set_size(chart, 80, 40);
     lv_obj_align(chart, LV_ALIGN_CENTER, 0, 40);
-    lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, 0, 0, 0, 0);
-    lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 0, 0, 0, 0);
 
     ser = lv_chart_add_series(chart, lv_color_hex(0x30b1b6), LV_CHART_AXIS_PRIMARY_Y);
-    lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
-    lv_obj_set_style_size(chart, 3, LV_PART_ITEMS);
-
-    lv_obj_add_style(chart, &style_chart, LV_PART_MAIN);
 }
