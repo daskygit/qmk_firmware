@@ -35,7 +35,6 @@ void wpm_layer_display_init(void) {
     lv_chart_set_point_count(chart, 20);
     lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 150);
     lv_obj_set_size(chart, 80, 40);
-    lv_obj_align(chart, LV_ALIGN_CENTER, 0, 40);
 
     ser = lv_chart_add_series(chart, lv_color_hex(0x30b1b6), LV_CHART_AXIS_PRIMARY_Y);
 }
@@ -62,7 +61,7 @@ void display_init(void) {
 
     if (!qp_lvgl_attach(lcd)) return;
 
-    lv_obj_clean(lv_scr_act());
+    //lv_obj_clean(lv_scr_act());
 
     wpm_layer_display_init();
 }
