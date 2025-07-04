@@ -12,38 +12,13 @@
 painter_device_t lcd;
 
 bool    master;
-int     currwpm      = 0;
-int     lastwpm      = 0;
 int     timer        = 0;
 int     count        = 0;
-bool    updating_wpm = true;
-int     currlay      = 0;
-int     lastlay      = 0;
-uint8_t currScreen   = 0xFF;
-
-// button style is going to be no background and no border, with individual buttons on a grey background with padding and rounded edges, mb_col if checked, equally spaced with white text across our 80*25
 
 void display_housekeeping_task(void) {
-    // Update WPM every 5 seconds
     if (timer_elapsed(timer) > 1000) {
-        updating_wpm = true;
-        timer        = timer_read();
-        lastwpm      = currwpm;
-        currwpm      = get_current_wpm();
-        // If current WPM is the same as the last WPM, we will update the chart with the same value.
-        // Once we have the chart filled completly with the same one we stop updating it.
-        if (currwpm == lastwpm) {
-            count++;
-            if (count < vals) {
-                lv_chart_set_next_value(chart, ser, currwpm);
-            }
-        } else {
-            count = 0;
-            lv_label_set_text_fmt(label_wpm, "WPM:%d", currwpm);
-
-            lv_chart_set_next_value(chart, ser, currwpm);
-        }
-        updating_wpm = false;
+        timer = timer_read();
+        lv_chart_set_next_value(chart, ser, 15);
     }
 }
 

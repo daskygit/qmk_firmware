@@ -24,12 +24,6 @@ lv_img_dsc_t scr = {
 int                vals       = 20;
 
 void wpm_layer_display_init(void) {
-    /*WPM chart and Label*/
-    label_wpm = lv_label_create(lv_scr_act());
-    lv_label_set_text(label_wpm, "WPM:0");
-    lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    lv_obj_align(label_wpm, LV_ALIGN_CENTER, 0, 5);
-
     chart = lv_chart_create(lv_scr_act());
     lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
     lv_chart_set_point_count(chart, vals);
